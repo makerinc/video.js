@@ -3,6 +3,7 @@
  */
 import Component from '../component.js';
 import document from 'global/document';
+import window from 'global/window';
 import * as Dom from '../utils/dom.js';
 import * as Fn from '../utils/fn.js';
 import * as Events from '../utils/events.js';
@@ -55,7 +56,9 @@ class Menu extends Component {
     }
 
     this.on(component, 'blur', this.boundHandleBlur_);
-    this.on(component, ['tap', 'click'], this.boundHandleTapClick_);
+    const clickEvent = 'ontap' in window ? 'tap' : 'click';
+
+    this.on(component, clickEvent, this.boundHandleTapClick_);
   }
 
   /**
@@ -71,7 +74,9 @@ class Menu extends Component {
     }
 
     this.off(component, 'blur', this.boundHandleBlur_);
-    this.off(component, ['tap', 'click'], this.boundHandleTapClick_);
+    const clickEvent = 'ontap' in window ? 'tap' : 'click';
+
+    this.off(component, clickEvent, this.boundHandleTapClick_);
   }
 
   /**
