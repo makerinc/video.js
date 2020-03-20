@@ -292,6 +292,14 @@ export function on(elem, type, fn) {
         return;
       }
 
+      // Ignore if the event is coming from @polymer/polymer/lib/utils/gestures.js
+      // Polymer is doubling some tap events which is causing issues in video.js.
+      // It would be the best to fix the issue in Polymer, since video.js is not
+      // doing anything wrong. But I found it easier to fix it here for now.
+      if ((event.detail || {}).preventer) {
+        return;
+      }
+
       event = fixEvent(event);
 
       const handlers = data.handlers[event.type];

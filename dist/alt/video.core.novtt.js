@@ -1896,6 +1896,14 @@
       data.dispatcher = function (event, hash) {
         if (data.disabled) {
           return;
+        } // Ignore if the event is coming from @polymer/polymer/lib/utils/gestures.js
+        // Polymer is doubling some tap events which is causing issues in video.js.
+        // It would be the best to fix the issue in Polymer, since video.js is not
+        // doing anything wrong. But I found it easier to fix it here for now.
+
+
+        if ((event.detail || {}).preventer) {
+          return;
         }
 
         event = fixEvent(event);
@@ -10683,7 +10691,7 @@
           this.el_.setAttribute('tabIndex', this.tabIndex_);
         }
 
-        var clickEvent = 'ontap' in window ? 'tap' : 'click';
+        var clickEvent = TOUCH_ENABLED ? 'tap' : 'click';
         this.on(clickEvent, this.handleClick);
         this.on('keydown', this.handleKeyDown);
       }
@@ -10704,7 +10712,7 @@
 
       this.off('mouseover', this.handleMouseOver);
       this.off('mouseout', this.handleMouseOut);
-      var clickEvent = 'ontap' in window ? 'tap' : 'click';
+      var clickEvent = TOUCH_ENABLED ? 'tap' : 'click';
       this.off(clickEvent, this.handleClick);
       this.off('keydown', this.handleKeyDown);
     }
@@ -15230,7 +15238,7 @@
       }
 
       this.on(component, 'blur', this.boundHandleBlur_);
-      var clickEvent = 'ontap' in window ? 'tap' : 'click';
+      var clickEvent = TOUCH_ENABLED ? 'tap' : 'click';
       this.on(component, clickEvent, this.boundHandleTapClick_);
     }
     /**
@@ -15248,7 +15256,7 @@
       }
 
       this.off(component, 'blur', this.boundHandleBlur_);
-      var clickEvent = 'ontap' in window ? 'tap' : 'click';
+      var clickEvent = TOUCH_ENABLED ? 'tap' : 'click';
       this.off(component, clickEvent, this.boundHandleTapClick_);
     }
     /**
@@ -16180,7 +16188,7 @@
 
       if (tracks.onchange === undefined) {
         var event;
-        var clickEvent = 'ontap' in window$1 ? 'tap' : 'click';
+        var clickEvent = TOUCH_ENABLED ? 'tap' : 'click';
 
         _this.on(clickEvent, function () {
           if (typeof window$1.Event !== 'object') {

@@ -5,6 +5,7 @@ import MenuItem from '../../menu/menu-item.js';
 import Component from '../../component.js';
 import window from 'global/window';
 import document from 'global/document';
+import {TOUCH_ENABLED} from '../../utils/browser.js';
 
 /**
  * The specific menu item type for selecting a language within a text track kind
@@ -62,7 +63,7 @@ class TextTrackMenuItem extends MenuItem {
     if (tracks.onchange === undefined) {
       let event;
 
-      const clickEvent = 'ontap' in window ? 'tap' : 'click';
+      const clickEvent = TOUCH_ENABLED ? 'tap' : 'click';
 
       this.on(clickEvent, function() {
         if (typeof window.Event !== 'object') {

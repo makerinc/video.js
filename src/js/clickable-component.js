@@ -6,7 +6,7 @@ import * as Dom from './utils/dom.js';
 import log from './utils/log.js';
 import {assign} from './utils/obj';
 import keycode from 'keycode';
-import window from 'global/window';
+import {TOUCH_ENABLED} from './utils/browser.js';
 
 /**
  * Component which is clickable or keyboard actionable, but is not a
@@ -157,7 +157,7 @@ class ClickableComponent extends Component {
       if (typeof this.tabIndex_ !== 'undefined') {
         this.el_.setAttribute('tabIndex', this.tabIndex_);
       }
-      const clickEvent = 'ontap' in window ? 'tap' : 'click';
+      const clickEvent = TOUCH_ENABLED ? 'tap' : 'click';
 
       this.on(clickEvent, this.handleClick);
       this.on('keydown', this.handleKeyDown);
@@ -176,7 +176,7 @@ class ClickableComponent extends Component {
     }
     this.off('mouseover', this.handleMouseOver);
     this.off('mouseout', this.handleMouseOut);
-    const clickEvent = 'ontap' in window ? 'tap' : 'click';
+    const clickEvent = TOUCH_ENABLED ? 'tap' : 'click';
 
     this.off(clickEvent, this.handleClick);
     this.off('keydown', this.handleKeyDown);

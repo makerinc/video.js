@@ -3,11 +3,11 @@
  */
 import Component from '../component.js';
 import document from 'global/document';
-import window from 'global/window';
 import * as Dom from '../utils/dom.js';
 import * as Fn from '../utils/fn.js';
 import * as Events from '../utils/events.js';
 import keycode from 'keycode';
+import {TOUCH_ENABLED} from '../utils/browser.js';
 
 /**
  * The Menu component is used to build popup menus, including subtitle and
@@ -56,7 +56,7 @@ class Menu extends Component {
     }
 
     this.on(component, 'blur', this.boundHandleBlur_);
-    const clickEvent = 'ontap' in window ? 'tap' : 'click';
+    const clickEvent = TOUCH_ENABLED ? 'tap' : 'click';
 
     this.on(component, clickEvent, this.boundHandleTapClick_);
   }
@@ -74,7 +74,7 @@ class Menu extends Component {
     }
 
     this.off(component, 'blur', this.boundHandleBlur_);
-    const clickEvent = 'ontap' in window ? 'tap' : 'click';
+    const clickEvent = TOUCH_ENABLED ? 'tap' : 'click';
 
     this.off(component, clickEvent, this.boundHandleTapClick_);
   }
