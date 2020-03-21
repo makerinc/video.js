@@ -775,7 +775,7 @@ body.vjs-full-window {
 }
 
 .vjs-button > .vjs-icon-placeholder:before {
-  font-size: 18px;
+  font-size: 1.8em;
   line-height: 1.67;
 }
 
