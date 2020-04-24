@@ -1,6 +1,6 @@
 /**
  * @license
- * Video.js 7.7.5 <http://videojs.com/>
+ * Video.js 7.8.1 <http://videojs.com/>
  * Copyright Brightcove, Inc. <https://www.brightcove.com/>
  * Available under Apache License Version 2.0
  * <https://github.com/videojs/video.js/blob/master/LICENSE>
@@ -18,6 +18,8 @@ var window$1 = _interopDefault(require('global/window'));
 var document = _interopDefault(require('global/document'));
 var _extends = _interopDefault(require('@babel/runtime/helpers/extends'));
 var _assertThisInitialized = _interopDefault(require('@babel/runtime/helpers/assertThisInitialized'));
+require('@babel/runtime/helpers/possibleConstructorReturn');
+require('@babel/runtime/helpers/getPrototypeOf');
 var _inheritsLoose = _interopDefault(require('@babel/runtime/helpers/inheritsLoose'));
 var safeParseTuple = _interopDefault(require('safe-json-parse/tuple'));
 var keycode = _interopDefault(require('keycode'));
@@ -34,7 +36,7 @@ var CaptionParser = _interopDefault(require('mux.js/lib/mp4/caption-parser'));
 var tsInspector = _interopDefault(require('mux.js/lib/tools/ts-inspector.js'));
 var aesDecrypter = require('aes-decrypter');
 
-var version = "7.7.5";
+var version = "7.8.1";
 
 /**
  * @file create-logger.js
@@ -1350,6 +1352,7 @@ var $ = createQuerier('querySelector');
 var $$ = createQuerier('querySelectorAll');
 
 var Dom = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   isReal: isReal,
   isEl: isEl,
   isInFrame: isInFrame,
@@ -1549,9 +1552,7 @@ function newGUID() {
 var FakeWeakMap;
 
 if (!window$1.WeakMap) {
-  FakeWeakMap =
-  /*#__PURE__*/
-  function () {
+  FakeWeakMap = /*#__PURE__*/function () {
     function FakeWeakMap() {
       this.vdata = 'vdata' + Math.floor(window$1.performance && window$1.performance.now() || Date.now());
       this.data = {};
@@ -2127,6 +2128,7 @@ function any(elem, type, fn) {
 }
 
 var Events = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   fixEvent: fixEvent,
   on: on,
   off: off,
@@ -3221,9 +3223,7 @@ function mergeOptions() {
  * Components can also use methods from {@link EventTarget}
  */
 
-var Component =
-/*#__PURE__*/
-function () {
+var Component = /*#__PURE__*/function () {
   /**
    * A callback that is called when a component is ready. Does not have any
    * paramters and any callback value will be ignored.
@@ -3296,9 +3296,7 @@ function () {
     var SetSham;
 
     if (!window$1.Set) {
-      SetSham =
-      /*#__PURE__*/
-      function () {
+      SetSham = /*#__PURE__*/function () {
         function SetSham() {
           this.set_ = {};
         }
@@ -3632,6 +3630,43 @@ function () {
     }
 
     return this.childNameIndex_[name];
+  }
+  /**
+   * Returns the descendant `Component` following the givent
+   * descendant `names`. For instance ['foo', 'bar', 'baz'] would
+   * try to get 'foo' on the current component, 'bar' on the 'foo'
+   * component and 'baz' on the 'bar' component and return undefined
+   * if any of those don't exist.
+   *
+   * @param {...string[]|...string} names
+   *        The name of the child `Component` to get.
+   *
+   * @return {Component|undefined}
+   *         The descendant `Component` following the given descendant
+   *         `names` or undefined.
+   */
+  ;
+
+  _proto.getDescendant = function getDescendant() {
+    for (var _len = arguments.length, names = new Array(_len), _key = 0; _key < _len; _key++) {
+      names[_key] = arguments[_key];
+    }
+
+    // flatten array argument into the main array
+    names = names.reduce(function (acc, n) {
+      return acc.concat(n);
+    }, []);
+    var currentChild = this;
+
+    for (var i = 0; i < names.length; i++) {
+      currentChild = currentChild.getChild(names[i]);
+
+      if (!currentChild || !currentChild.getChild) {
+        return;
+      }
+    }
+
+    return currentChild;
   }
   /**
    * Add a child `Component` inside the current `Component`.
@@ -5111,6 +5146,7 @@ var IS_IOS = IS_IPHONE || IS_IPAD || IS_IPOD;
 var IS_ANY_SAFARI = (IS_SAFARI || IS_IOS) && !IS_CHROME;
 
 var browser = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   IS_IPOD: IS_IPOD,
   IOS_VERSION: IOS_VERSION,
   IS_ANDROID: IS_ANDROID,
@@ -5606,9 +5642,7 @@ var MODAL_CLASS_NAME = 'vjs-modal-dialog';
  * @extends Component
  */
 
-var ModalDialog =
-/*#__PURE__*/
-function (_Component) {
+var ModalDialog = /*#__PURE__*/function (_Component) {
   _inheritsLoose(ModalDialog, _Component);
 
   /**
@@ -6128,9 +6162,7 @@ Component.registerComponent('ModalDialog', ModalDialog);
  * @extends EventTarget
  */
 
-var TrackList =
-/*#__PURE__*/
-function (_EventTarget) {
+var TrackList = /*#__PURE__*/function (_EventTarget) {
   _inheritsLoose(TrackList, _EventTarget);
 
   /**
@@ -6339,9 +6371,7 @@ var disableOthers = function disableOthers(list, track) {
  */
 
 
-var AudioTrackList =
-/*#__PURE__*/
-function (_TrackList) {
+var AudioTrackList = /*#__PURE__*/function (_TrackList) {
   _inheritsLoose(AudioTrackList, _TrackList);
 
   /**
@@ -6461,9 +6491,7 @@ var disableOthers$1 = function disableOthers(list, track) {
  */
 
 
-var VideoTrackList =
-/*#__PURE__*/
-function (_TrackList) {
+var VideoTrackList = /*#__PURE__*/function (_TrackList) {
   _inheritsLoose(VideoTrackList, _TrackList);
 
   /**
@@ -6574,9 +6602,7 @@ function (_TrackList) {
  * @extends TrackList
  */
 
-var TextTrackList =
-/*#__PURE__*/
-function (_TrackList) {
+var TextTrackList = /*#__PURE__*/function (_TrackList) {
   _inheritsLoose(TextTrackList, _TrackList);
 
   function TextTrackList() {
@@ -6648,9 +6674,7 @@ function (_TrackList) {
 /**
  * The current list of {@link HtmlTrackElement}s.
  */
-var HtmlTrackElementList =
-/*#__PURE__*/
-function () {
+var HtmlTrackElementList = /*#__PURE__*/function () {
   /**
    * Create an instance of this class.
    *
@@ -6791,9 +6815,7 @@ function () {
  *
  * @see [Spec]{@link https://html.spec.whatwg.org/multipage/embedded-content.html#texttrackcuelist}
  */
-var TextTrackCueList =
-/*#__PURE__*/
-function () {
+var TextTrackCueList = /*#__PURE__*/function () {
   /**
    * Create an instance of this class..
    *
@@ -6957,9 +6979,7 @@ var TextTrackMode = {
  * @abstract
  */
 
-var Track =
-/*#__PURE__*/
-function (_EventTarget) {
+var Track = /*#__PURE__*/function (_EventTarget) {
   _inheritsLoose(Track, _EventTarget);
 
   /**
@@ -7225,6 +7245,7 @@ var isCrossOrigin = function isCrossOrigin(url, winLoc) {
 };
 
 var Url = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   parseUrl: parseUrl,
   getAbsoluteURL: getAbsoluteURL,
   getFileExtension: getFileExtension,
@@ -7303,6 +7324,12 @@ var loadTrack = function loadTrack(src, track) {
     opts.cors = crossOrigin;
   }
 
+  var withCredentials = track.tech_.crossOrigin() === 'use-credentials';
+
+  if (withCredentials) {
+    opts.withCredentials = withCredentials;
+  }
+
   XHR(opts, bind(this, function (err, response, responseBody) {
     if (err) {
       return log.error(err, response);
@@ -7337,9 +7364,7 @@ var loadTrack = function loadTrack(src, track) {
  */
 
 
-var TextTrack =
-/*#__PURE__*/
-function (_Track) {
+var TextTrack = /*#__PURE__*/function (_Track) {
   _inheritsLoose(TextTrack, _Track);
 
   /**
@@ -7656,9 +7681,7 @@ TextTrack.prototype.allowedEvents_ = {
  * @extends Track
  */
 
-var AudioTrack =
-/*#__PURE__*/
-function (_Track) {
+var AudioTrack = /*#__PURE__*/function (_Track) {
   _inheritsLoose(AudioTrack, _Track);
 
   /**
@@ -7751,9 +7774,7 @@ function (_Track) {
  * @extends Track
  */
 
-var VideoTrack =
-/*#__PURE__*/
-function (_Track) {
+var VideoTrack = /*#__PURE__*/function (_Track) {
   _inheritsLoose(VideoTrack, _Track);
 
   /**
@@ -7854,9 +7875,7 @@ var ERROR = 3;
  * @extends EventTarget
  */
 
-var HTMLTrackElement =
-/*#__PURE__*/
-function (_EventTarget) {
+var HTMLTrackElement = /*#__PURE__*/function (_EventTarget) {
   _inheritsLoose(HTMLTrackElement, _EventTarget);
 
   /**
@@ -8079,9 +8098,7 @@ function createTrackHelper(self, kind, label, language, options) {
  */
 
 
-var Tech =
-/*#__PURE__*/
-function (_Component) {
+var Tech = /*#__PURE__*/function (_Component) {
   _inheritsLoose(Tech, _Component);
 
   /**
@@ -8862,6 +8879,24 @@ function (_Component) {
       return PromiseClass.reject();
     }
   }
+  /**
+   * A method to check for the presence of the 'disablePictureInPicture' <video> property.
+   *
+   * @abstract
+   */
+  ;
+
+  _proto.disablePictureInPicture = function disablePictureInPicture() {
+    return false;
+  }
+  /**
+   * A method to set or unset the 'disablePictureInPicture' <video> property.
+   *
+   * @abstract
+   */
+  ;
+
+  _proto.setDisablePictureInPicture = function setDisablePictureInPicture() {}
   /**
    * A method to set a poster from a `Tech`.
    *
@@ -9912,9 +9947,7 @@ function fixSource(src) {
  * @extends Component
  */
 
-var MediaLoader =
-/*#__PURE__*/
-function (_Component) {
+var MediaLoader = /*#__PURE__*/function (_Component) {
   _inheritsLoose(MediaLoader, _Component);
 
   /**
@@ -9978,9 +10011,7 @@ Component.registerComponent('MediaLoader', MediaLoader);
  * @extends Component
  */
 
-var ClickableComponent =
-/*#__PURE__*/
-function (_Component) {
+var ClickableComponent = /*#__PURE__*/function (_Component) {
   _inheritsLoose(ClickableComponent, _Component);
 
   /**
@@ -10231,9 +10262,7 @@ Component.registerComponent('ClickableComponent', ClickableComponent);
  * @extends ClickableComponent
  */
 
-var PosterImage =
-/*#__PURE__*/
-function (_ClickableComponent) {
+var PosterImage = /*#__PURE__*/function (_ClickableComponent) {
   _inheritsLoose(PosterImage, _ClickableComponent);
 
   /**
@@ -10435,9 +10464,7 @@ function tryUpdateStyle(el, style, rule) {
  */
 
 
-var TextTrackDisplay =
-/*#__PURE__*/
-function (_Component) {
+var TextTrackDisplay = /*#__PURE__*/function (_Component) {
   _inheritsLoose(TextTrackDisplay, _Component);
 
   /**
@@ -10786,9 +10813,7 @@ Component.registerComponent('TextTrackDisplay', TextTrackDisplay);
  * @extends Component
  */
 
-var LoadingSpinner =
-/*#__PURE__*/
-function (_Component) {
+var LoadingSpinner = /*#__PURE__*/function (_Component) {
   _inheritsLoose(LoadingSpinner, _Component);
 
   function LoadingSpinner() {
@@ -10831,9 +10856,7 @@ Component.registerComponent('LoadingSpinner', LoadingSpinner);
  * @extends ClickableComponent
  */
 
-var Button =
-/*#__PURE__*/
-function (_ClickableComponent) {
+var Button = /*#__PURE__*/function (_ClickableComponent) {
   _inheritsLoose(Button, _ClickableComponent);
 
   function Button() {
@@ -10969,9 +10992,7 @@ Component.registerComponent('Button', Button);
  * @extends Button
  */
 
-var BigPlayButton =
-/*#__PURE__*/
-function (_Button) {
+var BigPlayButton = /*#__PURE__*/function (_Button) {
   _inheritsLoose(BigPlayButton, _Button);
 
   function BigPlayButton(player, options) {
@@ -11076,9 +11097,7 @@ Component.registerComponent('BigPlayButton', BigPlayButton);
  * @extends Button
  */
 
-var CloseButton =
-/*#__PURE__*/
-function (_Button) {
+var CloseButton = /*#__PURE__*/function (_Button) {
   _inheritsLoose(CloseButton, _Button);
 
   /**
@@ -11179,9 +11198,7 @@ Component.registerComponent('CloseButton', CloseButton);
  * @extends Button
  */
 
-var PlayToggle =
-/*#__PURE__*/
-function (_Button) {
+var PlayToggle = /*#__PURE__*/function (_Button) {
   _inheritsLoose(PlayToggle, _Button);
 
   /**
@@ -11431,9 +11448,7 @@ function formatTime(seconds, guide) {
  * @extends Component
  */
 
-var TimeDisplay =
-/*#__PURE__*/
-function (_Component) {
+var TimeDisplay = /*#__PURE__*/function (_Component) {
   _inheritsLoose(TimeDisplay, _Component);
 
   /**
@@ -11579,9 +11594,7 @@ Component.registerComponent('TimeDisplay', TimeDisplay);
  * @extends Component
  */
 
-var CurrentTimeDisplay =
-/*#__PURE__*/
-function (_TimeDisplay) {
+var CurrentTimeDisplay = /*#__PURE__*/function (_TimeDisplay) {
   _inheritsLoose(CurrentTimeDisplay, _TimeDisplay);
 
   function CurrentTimeDisplay() {
@@ -11651,9 +11664,7 @@ Component.registerComponent('CurrentTimeDisplay', CurrentTimeDisplay);
  * @extends Component
  */
 
-var DurationDisplay =
-/*#__PURE__*/
-function (_TimeDisplay) {
+var DurationDisplay = /*#__PURE__*/function (_TimeDisplay) {
   _inheritsLoose(DurationDisplay, _TimeDisplay);
 
   /**
@@ -11747,9 +11758,7 @@ Component.registerComponent('DurationDisplay', DurationDisplay);
  * @extends Component
  */
 
-var TimeDivider =
-/*#__PURE__*/
-function (_Component) {
+var TimeDivider = /*#__PURE__*/function (_Component) {
   _inheritsLoose(TimeDivider, _Component);
 
   function TimeDivider() {
@@ -11787,9 +11796,7 @@ Component.registerComponent('TimeDivider', TimeDivider);
  * @extends Component
  */
 
-var RemainingTimeDisplay =
-/*#__PURE__*/
-function (_TimeDisplay) {
+var RemainingTimeDisplay = /*#__PURE__*/function (_TimeDisplay) {
   _inheritsLoose(RemainingTimeDisplay, _TimeDisplay);
 
   /**
@@ -11898,9 +11905,7 @@ Component.registerComponent('RemainingTimeDisplay', RemainingTimeDisplay);
  * @extends Component
  */
 
-var LiveDisplay =
-/*#__PURE__*/
-function (_Component) {
+var LiveDisplay = /*#__PURE__*/function (_Component) {
   _inheritsLoose(LiveDisplay, _Component);
 
   /**
@@ -11983,9 +11988,7 @@ Component.registerComponent('LiveDisplay', LiveDisplay);
  * @extends Component
  */
 
-var SeekToLive =
-/*#__PURE__*/
-function (_Button) {
+var SeekToLive = /*#__PURE__*/function (_Button) {
   _inheritsLoose(SeekToLive, _Button);
 
   /**
@@ -12040,7 +12043,7 @@ function (_Button) {
    */
   ;
 
-  _proto.updateLiveEdgeStatus = function updateLiveEdgeStatus(e) {
+  _proto.updateLiveEdgeStatus = function updateLiveEdgeStatus() {
     // default to live edge
     if (!this.player_.liveTracker || this.player_.liveTracker.atLiveEdge()) {
       this.setAttribute('aria-disabled', true);
@@ -12109,9 +12112,7 @@ var clamp = function clamp(number, min, max) {
  * @extends Component
  */
 
-var Slider =
-/*#__PURE__*/
-function (_Component) {
+var Slider = /*#__PURE__*/function (_Component) {
   _inheritsLoose(Slider, _Component);
 
   /**
@@ -12485,9 +12486,7 @@ var percentify = function percentify(time, end) {
  */
 
 
-var LoadProgressBar =
-/*#__PURE__*/
-function (_Component) {
+var LoadProgressBar = /*#__PURE__*/function (_Component) {
   _inheritsLoose(LoadProgressBar, _Component);
 
   /**
@@ -12624,9 +12623,7 @@ Component.registerComponent('LoadProgressBar', LoadProgressBar);
  * @extends Component
  */
 
-var TimeTooltip =
-/*#__PURE__*/
-function (_Component) {
+var TimeTooltip = /*#__PURE__*/function (_Component) {
   _inheritsLoose(TimeTooltip, _Component);
 
   /**
@@ -12789,9 +12786,7 @@ Component.registerComponent('TimeTooltip', TimeTooltip);
  * @extends Component
  */
 
-var PlayProgressBar =
-/*#__PURE__*/
-function (_Component) {
+var PlayProgressBar = /*#__PURE__*/function (_Component) {
   _inheritsLoose(PlayProgressBar, _Component);
 
   /**
@@ -12880,9 +12875,7 @@ Component.registerComponent('PlayProgressBar', PlayProgressBar);
  * @extends Component
  */
 
-var MouseTimeDisplay =
-/*#__PURE__*/
-function (_Component) {
+var MouseTimeDisplay = /*#__PURE__*/function (_Component) {
   _inheritsLoose(MouseTimeDisplay, _Component);
 
   /**
@@ -12963,9 +12956,7 @@ var PAGE_KEY_MULTIPLIER = 12;
  * @extends Slider
  */
 
-var SeekBar =
-/*#__PURE__*/
-function (_Slider) {
+var SeekBar = /*#__PURE__*/function (_Slider) {
   _inheritsLoose(SeekBar, _Slider);
 
   /**
@@ -13035,7 +13026,7 @@ function (_Slider) {
   };
 
   _proto.disableInterval_ = function disableInterval_(e) {
-    if (this.player_.liveTracker && this.player_.liveTracker.isLive() && e.type !== 'ended') {
+    if (this.player_.liveTracker && this.player_.liveTracker.isLive() && e && e.type !== 'ended') {
       return;
     }
 
@@ -13200,6 +13191,11 @@ function (_Slider) {
         newTime = newTime - 0.1;
       }
     } else {
+      if (distance >= 0.99) {
+        liveTracker.seekToLiveEdge();
+        return;
+      }
+
       var seekableStart = liveTracker.seekableStart();
       var seekableEnd = liveTracker.liveCurrentTime();
       newTime = seekableStart + distance * liveTracker.liveWindow(); // Don't let video end while scrubbing.
@@ -13373,6 +13369,25 @@ function (_Slider) {
     }
   };
 
+  _proto.dispose = function dispose() {
+    this.disableInterval_();
+    this.off(this.player_, ['ended', 'durationchange', 'timeupdate'], this.update);
+
+    if (this.player_.liveTracker) {
+      this.on(this.player_.liveTracker, 'liveedgechange', this.update);
+    }
+
+    this.off(this.player_, ['playing'], this.enableInterval_);
+    this.off(this.player_, ['ended', 'pause', 'waiting'], this.disableInterval_); // we don't need to update the play progress if the document is hidden,
+    // also, this causes the CPU to spike and eventually crash the page on IE11.
+
+    if ('hidden' in document && 'visibilityState' in document) {
+      this.off(document, 'visibilitychange', this.toggleVisibility_);
+    }
+
+    _Slider.prototype.dispose.call(this);
+  };
+
   return SeekBar;
 }(Slider);
 /**
@@ -13401,9 +13416,7 @@ Component.registerComponent('SeekBar', SeekBar);
  * @extends Component
  */
 
-var ProgressControl =
-/*#__PURE__*/
-function (_Component) {
+var ProgressControl = /*#__PURE__*/function (_Component) {
   _inheritsLoose(ProgressControl, _Component);
 
   /**
@@ -13631,9 +13644,7 @@ Component.registerComponent('ProgressControl', ProgressControl);
  * @extends Button
  */
 
-var PictureInPictureToggle =
-/*#__PURE__*/
-function (_Button) {
+var PictureInPictureToggle = /*#__PURE__*/function (_Button) {
   _inheritsLoose(PictureInPictureToggle, _Button);
 
   /**
@@ -13653,14 +13664,12 @@ function (_Button) {
 
     _this = _Button.call(this, player, options) || this;
 
-    _this.on(player, ['enterpictureinpicture', 'leavepictureinpicture'], _this.handlePictureInPictureChange); // TODO: Activate button on player loadedmetadata event.
-    // TODO: Deactivate button on player emptied event.
-    // TODO: Deactivate button if disablepictureinpicture attribute is present.
+    _this.on(player, ['enterpictureinpicture', 'leavepictureinpicture'], _this.handlePictureInPictureChange);
+
+    _this.on(player, ['disablepictureinpicturechanged', 'loadedmetadata'], _this.handlePictureInPictureEnabledChange); // TODO: Deactivate button on player emptied event.
 
 
-    if (!document.pictureInPictureEnabled) {
-      _this.disable();
-    }
+    _this.disable();
 
     return _this;
   }
@@ -13676,6 +13685,19 @@ function (_Button) {
 
   _proto.buildCSSClass = function buildCSSClass() {
     return "vjs-picture-in-picture-control " + _Button.prototype.buildCSSClass.call(this);
+  }
+  /**
+   * Enables or disables button based on document.pictureInPictureEnabled property value
+   * or on value returned by player.disablePictureInPicture() method.
+   */
+  ;
+
+  _proto.handlePictureInPictureEnabledChange = function handlePictureInPictureEnabledChange() {
+    if (!document.pictureInPictureEnabled || this.player_.disablePictureInPicture()) {
+      this.disable();
+    } else {
+      this.enable();
+    }
   }
   /**
    * Handles enterpictureinpicture and leavepictureinpicture on the player and change control text accordingly.
@@ -13695,6 +13717,8 @@ function (_Button) {
     } else {
       this.controlText('Picture-in-Picture');
     }
+
+    this.handlePictureInPictureEnabledChange();
   }
   /**
    * This gets called when an `PictureInPictureToggle` is "clicked". See
@@ -13736,9 +13760,7 @@ Component.registerComponent('PictureInPictureToggle', PictureInPictureToggle);
  * @extends Button
  */
 
-var FullscreenToggle =
-/*#__PURE__*/
-function (_Button) {
+var FullscreenToggle = /*#__PURE__*/function (_Button) {
   _inheritsLoose(FullscreenToggle, _Button);
 
   /**
@@ -13861,9 +13883,7 @@ var checkVolumeSupport = function checkVolumeSupport(self, player) {
  * @extends Component
  */
 
-var VolumeLevel =
-/*#__PURE__*/
-function (_Component) {
+var VolumeLevel = /*#__PURE__*/function (_Component) {
   _inheritsLoose(VolumeLevel, _Component);
 
   function VolumeLevel() {
@@ -13896,9 +13916,7 @@ Component.registerComponent('VolumeLevel', VolumeLevel);
  * @extends Slider
  */
 
-var VolumeBar =
-/*#__PURE__*/
-function (_Slider) {
+var VolumeBar = /*#__PURE__*/function (_Slider) {
   _inheritsLoose(VolumeBar, _Slider);
 
   /**
@@ -14095,9 +14113,7 @@ Component.registerComponent('VolumeBar', VolumeBar);
  * @extends Component
  */
 
-var VolumeControl =
-/*#__PURE__*/
-function (_Component) {
+var VolumeControl = /*#__PURE__*/function (_Component) {
   _inheritsLoose(VolumeControl, _Component);
 
   /**
@@ -14273,9 +14289,7 @@ var checkMuteSupport = function checkMuteSupport(self, player) {
  * @extends Button
  */
 
-var MuteToggle =
-/*#__PURE__*/
-function (_Button) {
+var MuteToggle = /*#__PURE__*/function (_Button) {
   _inheritsLoose(MuteToggle, _Button);
 
   /**
@@ -14429,9 +14443,7 @@ Component.registerComponent('MuteToggle', MuteToggle);
  * @extends Component
  */
 
-var VolumePanel =
-/*#__PURE__*/
-function (_Component) {
+var VolumePanel = /*#__PURE__*/function (_Component) {
   _inheritsLoose(VolumePanel, _Component);
 
   /**
@@ -14647,9 +14659,7 @@ Component.registerComponent('VolumePanel', VolumePanel);
  * @extends Component
  */
 
-var Menu =
-/*#__PURE__*/
-function (_Component) {
+var Menu = /*#__PURE__*/function (_Component) {
   _inheritsLoose(Menu, _Component);
 
   /**
@@ -14942,9 +14952,7 @@ Component.registerComponent('Menu', Menu);
  * @extends Component
  */
 
-var MenuButton =
-/*#__PURE__*/
-function (_Component) {
+var MenuButton = /*#__PURE__*/function (_Component) {
   _inheritsLoose(MenuButton, _Component);
 
   /**
@@ -15381,9 +15389,7 @@ Component.registerComponent('MenuButton', MenuButton);
  * @extends MenuButton
  */
 
-var TrackButton =
-/*#__PURE__*/
-function (_MenuButton) {
+var TrackButton = /*#__PURE__*/function (_MenuButton) {
   _inheritsLoose(TrackButton, _MenuButton);
 
   /**
@@ -15447,9 +15453,7 @@ var MenuKeys = ['Tab', 'Esc', 'Up', 'Down', 'Right', 'Left'];
  * @extends ClickableComponent
  */
 
-var MenuItem =
-/*#__PURE__*/
-function (_ClickableComponent) {
+var MenuItem = /*#__PURE__*/function (_ClickableComponent) {
   _inheritsLoose(MenuItem, _ClickableComponent);
 
   /**
@@ -15585,9 +15589,7 @@ Component.registerComponent('MenuItem', MenuItem);
  * @extends MenuItem
  */
 
-var TextTrackMenuItem =
-/*#__PURE__*/
-function (_MenuItem) {
+var TextTrackMenuItem = /*#__PURE__*/function (_MenuItem) {
   _inheritsLoose(TextTrackMenuItem, _MenuItem);
 
   /**
@@ -15771,9 +15773,7 @@ Component.registerComponent('TextTrackMenuItem', TextTrackMenuItem);
  * @extends TextTrackMenuItem
  */
 
-var OffTextTrackMenuItem =
-/*#__PURE__*/
-function (_TextTrackMenuItem) {
+var OffTextTrackMenuItem = /*#__PURE__*/function (_TextTrackMenuItem) {
   _inheritsLoose(OffTextTrackMenuItem, _TextTrackMenuItem);
 
   /**
@@ -15876,9 +15876,7 @@ Component.registerComponent('OffTextTrackMenuItem', OffTextTrackMenuItem);
  * @extends MenuButton
  */
 
-var TextTrackButton =
-/*#__PURE__*/
-function (_TrackButton) {
+var TextTrackButton = /*#__PURE__*/function (_TrackButton) {
   _inheritsLoose(TextTrackButton, _TrackButton);
 
   /**
@@ -15973,9 +15971,7 @@ Component.registerComponent('TextTrackButton', TextTrackButton);
  * @extends MenuItem
  */
 
-var ChaptersTrackMenuItem =
-/*#__PURE__*/
-function (_MenuItem) {
+var ChaptersTrackMenuItem = /*#__PURE__*/function (_MenuItem) {
   _inheritsLoose(ChaptersTrackMenuItem, _MenuItem);
 
   /**
@@ -16055,9 +16051,7 @@ Component.registerComponent('ChaptersTrackMenuItem', ChaptersTrackMenuItem);
  * @extends TextTrackButton
  */
 
-var ChaptersButton =
-/*#__PURE__*/
-function (_TextTrackButton) {
+var ChaptersButton = /*#__PURE__*/function (_TextTrackButton) {
   _inheritsLoose(ChaptersButton, _TextTrackButton);
 
   /**
@@ -16260,9 +16254,7 @@ Component.registerComponent('ChaptersButton', ChaptersButton);
  * @extends TextTrackButton
  */
 
-var DescriptionsButton =
-/*#__PURE__*/
-function (_TextTrackButton) {
+var DescriptionsButton = /*#__PURE__*/function (_TextTrackButton) {
   _inheritsLoose(DescriptionsButton, _TextTrackButton);
 
   /**
@@ -16366,9 +16358,7 @@ Component.registerComponent('DescriptionsButton', DescriptionsButton);
  * @extends TextTrackButton
  */
 
-var SubtitlesButton =
-/*#__PURE__*/
-function (_TextTrackButton) {
+var SubtitlesButton = /*#__PURE__*/function (_TextTrackButton) {
   _inheritsLoose(SubtitlesButton, _TextTrackButton);
 
   /**
@@ -16431,9 +16421,7 @@ Component.registerComponent('SubtitlesButton', SubtitlesButton);
  * @extends TextTrackMenuItem
  */
 
-var CaptionSettingsMenuItem =
-/*#__PURE__*/
-function (_TextTrackMenuItem) {
+var CaptionSettingsMenuItem = /*#__PURE__*/function (_TextTrackMenuItem) {
   _inheritsLoose(CaptionSettingsMenuItem, _TextTrackMenuItem);
 
   /**
@@ -16497,9 +16485,7 @@ Component.registerComponent('CaptionSettingsMenuItem', CaptionSettingsMenuItem);
  * @extends TextTrackButton
  */
 
-var CaptionsButton =
-/*#__PURE__*/
-function (_TextTrackButton) {
+var CaptionsButton = /*#__PURE__*/function (_TextTrackButton) {
   _inheritsLoose(CaptionsButton, _TextTrackButton);
 
   /**
@@ -16583,9 +16569,7 @@ Component.registerComponent('CaptionsButton', CaptionsButton);
  * @extends TextTrackMenuItem
  */
 
-var SubsCapsMenuItem =
-/*#__PURE__*/
-function (_TextTrackMenuItem) {
+var SubsCapsMenuItem = /*#__PURE__*/function (_TextTrackMenuItem) {
   _inheritsLoose(SubsCapsMenuItem, _TextTrackMenuItem);
 
   function SubsCapsMenuItem() {
@@ -16621,9 +16605,7 @@ Component.registerComponent('SubsCapsMenuItem', SubsCapsMenuItem);
  * @extends TextTrackButton
  */
 
-var SubsCapsButton =
-/*#__PURE__*/
-function (_TextTrackButton) {
+var SubsCapsButton = /*#__PURE__*/function (_TextTrackButton) {
   _inheritsLoose(SubsCapsButton, _TextTrackButton);
 
   function SubsCapsButton(player, options) {
@@ -16713,9 +16695,7 @@ Component.registerComponent('SubsCapsButton', SubsCapsButton);
  * @extends MenuItem
  */
 
-var AudioTrackMenuItem =
-/*#__PURE__*/
-function (_MenuItem) {
+var AudioTrackMenuItem = /*#__PURE__*/function (_MenuItem) {
   _inheritsLoose(AudioTrackMenuItem, _MenuItem);
 
   /**
@@ -16822,9 +16802,7 @@ Component.registerComponent('AudioTrackMenuItem', AudioTrackMenuItem);
  * @extends TrackButton
  */
 
-var AudioTrackButton =
-/*#__PURE__*/
-function (_TrackButton) {
+var AudioTrackButton = /*#__PURE__*/function (_TrackButton) {
   _inheritsLoose(AudioTrackButton, _TrackButton);
 
   /**
@@ -16914,9 +16892,7 @@ Component.registerComponent('AudioTrackButton', AudioTrackButton);
  * @extends MenuItem
  */
 
-var PlaybackRateMenuItem =
-/*#__PURE__*/
-function (_MenuItem) {
+var PlaybackRateMenuItem = /*#__PURE__*/function (_MenuItem) {
   _inheritsLoose(PlaybackRateMenuItem, _MenuItem);
 
   /**
@@ -16999,9 +16975,7 @@ Component.registerComponent('PlaybackRateMenuItem', PlaybackRateMenuItem);
  * @extends MenuButton
  */
 
-var PlaybackRateMenuButton =
-/*#__PURE__*/
-function (_MenuButton) {
+var PlaybackRateMenuButton = /*#__PURE__*/function (_MenuButton) {
   _inheritsLoose(PlaybackRateMenuButton, _MenuButton);
 
   /**
@@ -17205,9 +17179,7 @@ Component.registerComponent('PlaybackRateMenuButton', PlaybackRateMenuButton);
  * @extends Component
  */
 
-var Spacer =
-/*#__PURE__*/
-function (_Component) {
+var Spacer = /*#__PURE__*/function (_Component) {
   _inheritsLoose(Spacer, _Component);
 
   function Spacer() {
@@ -17250,9 +17222,7 @@ Component.registerComponent('Spacer', Spacer);
  * @extends Spacer
  */
 
-var CustomControlSpacer =
-/*#__PURE__*/
-function (_Spacer) {
+var CustomControlSpacer = /*#__PURE__*/function (_Spacer) {
   _inheritsLoose(CustomControlSpacer, _Spacer);
 
   function CustomControlSpacer() {
@@ -17300,9 +17270,7 @@ Component.registerComponent('CustomControlSpacer', CustomControlSpacer);
  * @extends Component
  */
 
-var ControlBar =
-/*#__PURE__*/
-function (_Component) {
+var ControlBar = /*#__PURE__*/function (_Component) {
   _inheritsLoose(ControlBar, _Component);
 
   function ControlBar() {
@@ -17351,9 +17319,7 @@ Component.registerComponent('ControlBar', ControlBar);
  * @extends ModalDialog
  */
 
-var ErrorDisplay =
-/*#__PURE__*/
-function (_ModalDialog) {
+var ErrorDisplay = /*#__PURE__*/function (_ModalDialog) {
   _inheritsLoose(ErrorDisplay, _ModalDialog);
 
   /**
@@ -17588,9 +17554,7 @@ function setSelectedOption(el, value, parser) {
  */
 
 
-var TextTrackSettings =
-/*#__PURE__*/
-function (_ModalDialog) {
+var TextTrackSettings = /*#__PURE__*/function (_ModalDialog) {
   _inheritsLoose(TextTrackSettings, _ModalDialog);
 
   /**
@@ -17938,9 +17902,7 @@ Component.registerComponent('TextTrackSettings', TextTrackSettings);
  * @extends Component
  */
 
-var ResizeManager =
-/*#__PURE__*/
-function (_Component) {
+var ResizeManager = /*#__PURE__*/function (_Component) {
   _inheritsLoose(ResizeManager, _Component);
 
   /**
@@ -18075,35 +18037,40 @@ function (_Component) {
 
 Component.registerComponent('ResizeManager', ResizeManager);
 
-/**
- * Computes the median of an array.
- *
- * @param {number[]} arr
- *        Input array of numbers.
- *
- * @return {number}
- *        Median value.
- */
-var median = function median(arr) {
-  var mid = Math.floor(arr.length / 2);
-  var sortedList = [].concat(arr).sort(function (a, b) {
-    return a - b;
-  });
-  return arr.length % 2 !== 0 ? sortedList[mid] : (sortedList[mid - 1] + sortedList[mid]) / 2;
-};
-
 var defaults = {
-  // Number of seconds of live window (seekableEnd - seekableStart) that
-  // a video needs to have before the liveui will be shown.
-  trackingThreshold: 30
+  trackingThreshold: 30,
+  liveTolerance: 15
 };
-/* track when we are at the live edge, and other helpers for live playback */
+/*
+  track when we are at the live edge, and other helpers for live playback */
 
-var LiveTracker =
-/*#__PURE__*/
-function (_Component) {
+/**
+ * A class for checking live current time and determining when the player
+ * is at or behind the live edge.
+ */
+
+var LiveTracker = /*#__PURE__*/function (_Component) {
   _inheritsLoose(LiveTracker, _Component);
 
+  /**
+   * Creates an instance of this class.
+   *
+   * @param {Player} player
+   *        The `Player` that this class should be attached to.
+   *
+   * @param {Object} [options]
+   *        The key/value store of player options.
+   *
+   * @param {number} [options.trackingThreshold=30]
+   *        Number of seconds of live window (seekableEnd - seekableStart) that
+   *        media needs to have before the liveui will be shown.
+   *
+   * @param {number} [options.liveTolerance=15]
+   *        Number of seconds behind live that we have to be
+   *        before we will be considered non-live. Note that this will only
+   *        be used when playing at the live edge. This allows large seekable end
+   *        changes to not effect wether we are live or not.
+   */
   function LiveTracker(player, options) {
     var _this;
 
@@ -18126,6 +18093,10 @@ function (_Component) {
 
     return _this;
   }
+  /**
+   * toggle tracking based on document visiblility
+   */
+
 
   var _proto = LiveTracker.prototype;
 
@@ -18139,67 +18110,41 @@ function (_Component) {
     } else {
       this.startTracking();
     }
-  };
-
-  _proto.isBehind_ = function isBehind_() {
-    // don't report that we are behind until a timeupdate has been seen
-    if (!this.timeupdateSeen_) {
-      return false;
-    }
-
-    var liveCurrentTime = this.liveCurrentTime();
-    var currentTime = this.player_.currentTime(); // the live edge window is the amount of seconds away from live
-    // that a player can be, but still be considered live.
-    // we add 0.07 because the live tracking happens every 30ms
-    // and we want some wiggle room for short segment live playback
-
-    var liveEdgeWindow = this.seekableIncrement_ * 2 + 0.07; // on Android liveCurrentTime can bee Infinity, because seekableEnd
-    // can be Infinity, so we handle that case.
-
-    return liveCurrentTime !== Infinity && liveCurrentTime - liveEdgeWindow >= currentTime;
-  } // all the functionality for tracking when seek end changes
-  // and for tracking how far past seek end we should be
+  }
+  /**
+   * all the functionality for tracking when seek end changes
+   * and for tracking how far past seek end we should be
+   */
   ;
 
   _proto.trackLive_ = function trackLive_() {
-    this.pastSeekEnd_ = this.pastSeekEnd_;
     var seekable = this.player_.seekable(); // skip undefined seekable
 
     if (!seekable || !seekable.length) {
       return;
     }
 
-    var newSeekEnd = this.seekableEnd(); // we can only tell if we are behind live, when seekable changes
-    // once we detect that seekable has changed we check the new seek
-    // end against current time, with a fudge value of half a second.
+    var newTime = Number(window$1.performance.now().toFixed(4));
+    var deltaTime = this.lastTime_ === -1 ? 0 : (newTime - this.lastTime_) / 1000;
+    this.lastTime_ = newTime;
+    this.pastSeekEnd_ = this.pastSeekEnd() + deltaTime;
+    var liveCurrentTime = this.liveCurrentTime();
+    var currentTime = this.player_.currentTime(); // we are behind live if any are true
+    // 1. the player is paused
+    // 2. the user seeked to a location 2 seconds away from live
+    // 3. the difference between live and current time is greater
+    //    liveTolerance which defaults to 15s
 
-    if (newSeekEnd !== this.lastSeekEnd_) {
-      if (this.lastSeekEnd_) {
-        // we try to get the best fit value for the seeking increment
-        // variable from the last 12 values.
-        this.seekableIncrementList_ = this.seekableIncrementList_.slice(-11);
-        this.seekableIncrementList_.push(Math.abs(newSeekEnd - this.lastSeekEnd_));
+    var isBehind = this.player_.paused() || this.seekedBehindLive_ || Math.abs(liveCurrentTime - currentTime) > this.options_.liveTolerance; // we cannot be behind if
+    // 1. until we have not seen a timeupdate yet
+    // 2. liveCurrentTime is Infinity, which happens on Android
 
-        if (this.seekableIncrementList_.length > 3) {
-          this.seekableIncrement_ = median(this.seekableIncrementList_);
-        }
-      }
-
-      this.pastSeekEnd_ = 0;
-      this.lastSeekEnd_ = newSeekEnd;
-      this.trigger('seekableendchange');
-    } // we should reset pastSeekEnd when the value
-    // is much higher than seeking increment.
-
-
-    if (this.pastSeekEnd() > this.seekableIncrement_ * 1.5) {
-      this.pastSeekEnd_ = 0;
-    } else {
-      this.pastSeekEnd_ = this.pastSeekEnd() + 0.03;
+    if (!this.timeupdateSeen_ || liveCurrentTime === Infinity) {
+      isBehind = false;
     }
 
-    if (this.isBehind_() !== this.behindLiveEdge()) {
-      this.behindLiveEdge_ = this.isBehind_();
+    if (isBehind !== this.behindLiveEdge_) {
+      this.behindLiveEdge_ = isBehind;
       this.trigger('liveedgechange');
     }
   }
@@ -18227,8 +18172,6 @@ function (_Component) {
   ;
 
   _proto.startTracking = function startTracking() {
-    var _this2 = this;
-
     if (this.isTracking()) {
       return;
     } // If we haven't seen a timeupdate, we need to check whether playback
@@ -18242,21 +18185,42 @@ function (_Component) {
 
     this.trackingInterval_ = this.setInterval(this.trackLive_, UPDATE_REFRESH_INTERVAL);
     this.trackLive_();
-    this.on(this.player_, 'play', this.trackLive_);
-    this.on(this.player_, 'pause', this.trackLive_); // this is to prevent showing that we are not live
-    // before a video starts to play
+    this.on(this.player_, ['play', 'pause'], this.trackLive_);
 
     if (!this.timeupdateSeen_) {
       this.one(this.player_, 'play', this.handlePlay);
-
-      this.handleTimeupdate = function () {
-        _this2.timeupdateSeen_ = true;
-        _this2.handleTimeupdate = null;
-      };
-
-      this.one(this.player_, 'timeupdate', this.handleTimeupdate);
+      this.one(this.player_, 'timeupdate', this.handleFirstTimeupdate);
+    } else {
+      this.on(this.player_, 'seeked', this.handleSeeked);
     }
-  };
+  }
+  /**
+   * handle the first timeupdate on the player if it wasn't already playing
+   * when live tracker started tracking.
+   */
+  ;
+
+  _proto.handleFirstTimeupdate = function handleFirstTimeupdate() {
+    this.timeupdateSeen_ = true;
+    this.on(this.player_, 'seeked', this.handleSeeked);
+  }
+  /**
+   * Keep track of what time a seek starts, and listen for seeked
+   * to find where a seek ends.
+   */
+  ;
+
+  _proto.handleSeeked = function handleSeeked() {
+    var timeDiff = Math.abs(this.liveCurrentTime() - this.player_.currentTime());
+    this.seekedBehindLive_ = this.skipNextSeeked_ ? false : timeDiff > 2;
+    this.skipNextSeeked_ = false;
+    this.trackLive_();
+  }
+  /**
+   * handle the first play on the player, and make sure that we seek
+   * right to the live edge.
+   */
+  ;
 
   _proto.handlePlay = function handlePlay() {
     this.one(this.player_, 'timeupdate', this.seekToLiveEdge);
@@ -18268,23 +18232,20 @@ function (_Component) {
   ;
 
   _proto.reset_ = function reset_() {
+    this.lastTime_ = -1;
     this.pastSeekEnd_ = 0;
-    this.lastSeekEnd_ = null;
-    this.behindLiveEdge_ = null;
+    this.lastSeekEnd_ = -1;
+    this.behindLiveEdge_ = true;
     this.timeupdateSeen_ = false;
+    this.seekedBehindLive_ = false;
+    this.skipNextSeeked_ = false;
     this.clearInterval(this.trackingInterval_);
     this.trackingInterval_ = null;
-    this.seekableIncrement_ = 12;
-    this.seekableIncrementList_ = [];
-    this.off(this.player_, 'play', this.trackLive_);
-    this.off(this.player_, 'pause', this.trackLive_);
+    this.off(this.player_, ['play', 'pause'], this.trackLive_);
+    this.off(this.player_, 'seeked', this.handleSeeked);
     this.off(this.player_, 'play', this.handlePlay);
+    this.off(this.player_, 'timeupdate', this.handleFirstTimeupdate);
     this.off(this.player_, 'timeupdate', this.seekToLiveEdge);
-
-    if (this.handleTimeupdate) {
-      this.off(this.player_, 'timeupdate', this.handleTimeupdate);
-      this.handleTimeupdate = null;
-    }
   }
   /**
    * stop tracking live playback
@@ -18297,10 +18258,14 @@ function (_Component) {
     }
 
     this.reset_();
+    this.trigger('liveedgechange');
   }
   /**
    * A helper to get the player seekable end
    * so that we don't have to null check everywhere
+   *
+   * @return {number}
+   *         The furthest seekable end or Infinity.
    */
   ;
 
@@ -18320,6 +18285,9 @@ function (_Component) {
   /**
    * A helper to get the player seekable start
    * so that we don't have to null check everywhere
+   *
+   * @return {number}
+   *         The earliest seekable start or 0.
    */
   ;
 
@@ -18337,7 +18305,13 @@ function (_Component) {
     return seekableStarts.length ? seekableStarts.sort()[0] : 0;
   }
   /**
-   * Get the live time window
+   * Get the live time window aka
+   * the amount of time between seekable start and
+   * live current time.
+   *
+   * @return {number}
+   *         The amount of seconds that are seekable in
+   *         the live video.
    */
   ;
 
@@ -18353,6 +18327,9 @@ function (_Component) {
   /**
    * Determines if the player is live, only checks if this component
    * is tracking live playback or not
+   *
+   * @return {boolean}
+   *         Wether liveTracker is tracking
    */
   ;
 
@@ -18362,6 +18339,9 @@ function (_Component) {
   /**
    * Determines if currentTime is at the live edge and won't fall behind
    * on each seekableendchange
+   *
+   * @return {boolean}
+   *         Wether playback is at the live edge
    */
   ;
 
@@ -18370,6 +18350,9 @@ function (_Component) {
   }
   /**
    * get what we expect the live current time to be
+   *
+   * @return {number}
+   *         The expected live current time
    */
   ;
 
@@ -18377,22 +18360,40 @@ function (_Component) {
     return this.pastSeekEnd() + this.seekableEnd();
   }
   /**
-   * Returns how far past seek end we expect current time to be
+   * The number of seconds that have occured after seekable end
+   * changed. This will be reset to 0 once seekable end changes.
+   *
+   * @return {number}
+   *         Seconds past the current seekable end
    */
   ;
 
   _proto.pastSeekEnd = function pastSeekEnd() {
+    var seekableEnd = this.seekableEnd();
+
+    if (this.lastSeekEnd_ !== -1 && seekableEnd !== this.lastSeekEnd_) {
+      this.pastSeekEnd_ = 0;
+    }
+
+    this.lastSeekEnd_ = seekableEnd;
     return this.pastSeekEnd_;
   }
   /**
    * If we are currently behind the live edge, aka currentTime will be
    * behind on a seekableendchange
+   *
+   * @return {boolean}
+   *         If we are behind the live edge
    */
   ;
 
   _proto.behindLiveEdge = function behindLiveEdge() {
     return this.behindLiveEdge_;
-  };
+  }
+  /**
+   * Wether live tracker is currently tracking or not.
+   */
+  ;
 
   _proto.isTracking = function isTracking() {
     return typeof this.trackingInterval_ === 'number';
@@ -18403,18 +18404,23 @@ function (_Component) {
   ;
 
   _proto.seekToLiveEdge = function seekToLiveEdge() {
+    this.seekedBehindLive_ = false;
+
     if (this.atLiveEdge()) {
       return;
-    }
+    } // skipNextSeeked_
 
+
+    this.skipNextSeeked_ = true;
     this.player_.currentTime(this.liveCurrentTime());
-
-    if (this.player_.paused()) {
-      this.player_.play();
-    }
-  };
+  }
+  /**
+   * Dispose of liveTracker
+   */
+  ;
 
   _proto.dispose = function dispose() {
+    this.off(document, 'visibilitychange', this.handleVisibilityChange);
     this.stopTracking();
 
     _Component.prototype.dispose.call(this);
@@ -18766,9 +18772,7 @@ var defineLazyProperty = function defineLazyProperty(obj, key, getValue, setter)
  * @extends Tech
  */
 
-var Html5 =
-/*#__PURE__*/
-function (_Tech) {
+var Html5 = /*#__PURE__*/function (_Tech) {
   _inheritsLoose(Html5, _Tech);
 
   /**
@@ -19157,6 +19161,10 @@ function (_Tech) {
 
     if (typeof this.options_.preload !== 'undefined') {
       setAttribute(el, 'preload', this.options_.preload);
+    }
+
+    if (this.options_.disablePictureInPicture !== undefined) {
+      el.disablePictureInPicture = this.options_.disablePictureInPicture;
     } // Update specific tag settings, in case they were overridden
     // `autoplay` has to be *last* so that `muted` and `playsinline` are present
     // when iOS/Safari or other browsers attempt to autoplay.
@@ -19271,6 +19279,10 @@ function (_Tech) {
         this.trigger(type);
       }, this);
     });
+  };
+
+  _proto.setScrubbing = function setScrubbing(isScrubbing) {
+    this.isScrubbing_ = isScrubbing;
   }
   /**
    * Set current time for the `HTML5` tech.
@@ -19282,7 +19294,11 @@ function (_Tech) {
 
   _proto.setCurrentTime = function setCurrentTime(seconds) {
     try {
-      this.el_.currentTime = seconds;
+      if (this.isScrubbing_ && this.el_.fastSeek) {
+        this.el_.fastSeek(seconds);
+      } else {
+        this.el_.currentTime = seconds;
+      }
     } catch (e) {
       log(e, 'Video is not ready. (Video.js)'); // this.warning(VideoJS.warnings.videoNotReady);
     }
@@ -19416,15 +19432,24 @@ function (_Tech) {
     if (video.paused && video.networkState <= video.HAVE_METADATA) {
       // attempt to prime the video element for programmatic access
       // this isn't necessary on the desktop but shouldn't hurt
-      this.el_.play(); // playing and pausing synchronously during the transition to fullscreen
+      silencePromise(this.el_.play()); // playing and pausing synchronously during the transition to fullscreen
       // can get iOS ~6.1 devices into a play/pause loop
 
       this.setTimeout(function () {
         video.pause();
-        video.webkitEnterFullScreen();
+
+        try {
+          video.webkitEnterFullScreen();
+        } catch (e) {
+          this.trigger('fullscreenerror', e);
+        }
       }, 0);
     } else {
-      video.webkitEnterFullScreen();
+      try {
+        video.webkitEnterFullScreen();
+      } catch (e) {
+        this.trigger('fullscreenerror', e);
+      }
     }
   }
   /**
@@ -19433,6 +19458,11 @@ function (_Tech) {
   ;
 
   _proto.exitFullScreen = function exitFullScreen() {
+    if (!this.el_.webkitDisplayingFullscreen) {
+      this.trigger('fullscreenerror', new Error('The video is not fullscreen'));
+      return;
+    }
+
     this.el_.webkitExitFullScreen();
   }
   /**
@@ -20265,8 +20295,8 @@ Html5.resetMediaElement = function (el) {
 }); // Wrap native properties with a getter
 // The list is as followed
 // paused, currentTime, buffered, volume, poster, preload, error, seeking
-// seekable, ended, playbackRate, defaultPlaybackRate, played, networkState
-// readyState, videoWidth, videoHeight
+// seekable, ended, playbackRate, defaultPlaybackRate, disablePictureInPicture
+// played, networkState, readyState, videoWidth, videoHeight, crossOrigin
 
 [
 /**
@@ -20428,6 +20458,18 @@ Html5.resetMediaElement = function (el) {
  */
 'defaultPlaybackRate',
 /**
+ * Get the value of 'disablePictureInPicture' from the video element.
+ *
+ * @method Html5#disablePictureInPicture
+ * @return {boolean} value
+ *         - The value of `disablePictureInPicture` from the video element.
+ *         - True indicates that the video can't be played in Picture-In-Picture mode
+ *         - False indicates that the video can be played in Picture-In-Picture mode
+ *
+ * @see [Spec]{@link https://w3c.github.io/picture-in-picture/#disable-pip}
+ */
+'disablePictureInPicture',
+/**
  * Get the value of `played` from the media element. `played` returns a `TimeRange`
  * object representing points in the media timeline that have been played.
  *
@@ -20496,14 +20538,28 @@ Html5.resetMediaElement = function (el) {
  *
  * @see [Spec] {@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-video-videowidth}
  */
-'videoHeight'].forEach(function (prop) {
+'videoHeight',
+/**
+ * Get the value of `crossOrigin` from the media element. `crossOrigin` indicates
+ * to the browser that should sent the cookies along with the requests for the
+ * different assets/playlists
+ *
+ * @method Html5#crossOrigin
+ * @return {string}
+ *         - anonymous indicates that the media should not sent cookies.
+ *         - use-credentials indicates that the media should sent cookies along the requests.
+ *
+ * @see [Spec]{@link https://html.spec.whatwg.org/#attr-media-crossorigin}
+ */
+'crossOrigin'].forEach(function (prop) {
   Html5.prototype[prop] = function () {
     return this.el_[prop];
   };
 }); // Wrap native properties with a setter in this format:
 // set + toTitleCase(name)
 // The list is as follows:
-// setVolume, setSrc, setPoster, setPreload, setPlaybackRate, setDefaultPlaybackRate
+// setVolume, setSrc, setPoster, setPreload, setPlaybackRate, setDefaultPlaybackRate,
+// setDisablePictureInPicture, setCrossOrigin
 
 [
 /**
@@ -20589,7 +20645,31 @@ Html5.resetMediaElement = function (el) {
  *
  * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-defaultplaybackrate}
  */
-'defaultPlaybackRate'].forEach(function (prop) {
+'defaultPlaybackRate',
+/**
+ * Prevents the browser from suggesting a Picture-in-Picture context menu
+ * or to request Picture-in-Picture automatically in some cases.
+ *
+ * @method Html5#setDisablePictureInPicture
+ * @param {boolean} value
+ *         The true value will disable Picture-in-Picture mode.
+ *
+ * @see [Spec]{@link https://w3c.github.io/picture-in-picture/#disable-pip}
+ */
+'disablePictureInPicture',
+/**
+ * Set the value of `crossOrigin` from the media element. `crossOrigin` indicates
+ * to the browser that should sent the cookies along with the requests for the
+ * different assets/playlists
+ *
+ * @method Html5#setCrossOrigin
+ * @param {string} crossOrigin
+ *         - anonymous indicates that the media should not sent cookies.
+ *         - use-credentials indicates that the media should sent cookies along the requests.
+ *
+ * @see [Spec]{@link https://html.spec.whatwg.org/#attr-media-crossorigin}
+ */
+'crossOrigin'].forEach(function (prop) {
   Html5.prototype['set' + toTitleCase(prop)] = function (v) {
     this.el_[prop] = v;
   };
@@ -20930,9 +21010,7 @@ var DEFAULT_BREAKPOINTS = {
  * @extends Component
  */
 
-var Player =
-/*#__PURE__*/
-function (_Component) {
+var Player = /*#__PURE__*/function (_Component) {
   _inheritsLoose(Player, _Component);
 
   /**
@@ -21369,7 +21447,9 @@ function (_Component) {
     this.height(this.options_.height);
     this.fill(this.options_.fill);
     this.fluid(this.options_.fluid);
-    this.aspectRatio(this.options_.aspectRatio); // Hide any links within the video/audio tag,
+    this.aspectRatio(this.options_.aspectRatio); // support both crossOrigin and crossorigin to reduce confusion and issues around the name
+
+    this.crossOrigin(this.options_.crossOrigin || this.options_.crossorigin); // Hide any links within the video/audio tag,
     // because IE doesn't hide them completely from screen readers.
 
     var links = tag.getElementsByTagName('a');
@@ -21400,6 +21480,36 @@ function (_Component) {
     this.el_.setAttribute('lang', this.language_);
     this.el_ = el;
     return el;
+  }
+  /**
+   * Get or set the `Player`'s crossOrigin option. For the HTML5 player, this
+   * sets the `crossOrigin` property on the `<video>` tag to control the CORS
+   * behavior.
+   *
+   * @see [Video Element Attributes]{@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin}
+   *
+   * @param {string} [value]
+   *        The value to set the `Player`'s crossOrigin to. If an argument is
+   *        given, must be one of `anonymous` or `use-credentials`.
+   *
+   * @return {string|undefined}
+   *         - The current crossOrigin value of the `Player` when getting.
+   *         - undefined when setting
+   */
+  ;
+
+  _proto.crossOrigin = function crossOrigin(value) {
+    if (!value) {
+      return this.techGet_('crossOrigin');
+    }
+
+    if (value !== 'anonymous' && value !== 'use-credentials') {
+      log.warn("crossOrigin must be \"anonymous\" or \"use-credentials\", given \"" + value + "\"");
+      return;
+    }
+
+    this.techCall_('setCrossOrigin', value);
+    return;
   }
   /**
    * A getter/setter for the `Player`'s width. Returns the player's configured value.
@@ -21554,7 +21664,7 @@ function (_Component) {
    * A getter/setter for the `Player`'s aspect ratio.
    *
    * @param {string} [ratio]
-   *        The value to set the `Player's aspect ratio to.
+   *        The value to set the `Player`'s aspect ratio to.
    *
    * @return {string|undefined}
    *         - The current aspect ratio of the `Player` when getting.
@@ -21704,6 +21814,7 @@ function (_Component) {
       'playsinline': this.options_.playsinline,
       'preload': this.options_.preload,
       'loop': this.options_.loop,
+      'disablePictureInPicture': this.options_.disablePictureInPicture,
       'muted': this.options_.muted,
       'poster': this.poster(),
       'language': this.language(),
@@ -21768,6 +21879,7 @@ function (_Component) {
     this.on(this.tech_, 'pause', this.handleTechPause_);
     this.on(this.tech_, 'durationchange', this.handleTechDurationChange_);
     this.on(this.tech_, 'fullscreenchange', this.handleTechFullscreenChange_);
+    this.on(this.tech_, 'fullscreenerror', this.handleTechFullscreenError_);
     this.on(this.tech_, 'enterpictureinpicture', this.handleTechEnterPictureInPicture_);
     this.on(this.tech_, 'leavepictureinpicture', this.handleTechLeavePictureInPicture_);
     this.on(this.tech_, 'error', this.handleTechError_);
@@ -22696,6 +22808,10 @@ function (_Component) {
     if (data) {
       this.isFullscreen(data.isFullscreen);
     }
+  };
+
+  _proto.handleTechFullscreenError_ = function handleTechFullscreenError_(event, err) {
+    this.trigger('fullscreenerror', err);
   }
   /**
    * @private
@@ -22802,6 +22918,7 @@ function (_Component) {
       // we set it to zero here to ensure that if we do start actually caching
       // it, we reset it along with everything else.
       currentTime: 0,
+      initTime: 0,
       inactivityTimeout: this.options_.inactivityTimeout,
       duration: NaN,
       lastVolume: 1,
@@ -23060,6 +23177,7 @@ function (_Component) {
     }
 
     this.scrubbing_ = !!isScrubbing;
+    this.techCall_('setScrubbing', this.scrubbing_);
 
     if (isScrubbing) {
       this.addClass('vjs-scrubbing');
@@ -23084,7 +23202,15 @@ function (_Component) {
         seconds = 0;
       }
 
+      if (!this.isReady_ || this.changingSrc_ || !this.tech_ || !this.tech_.isReady_) {
+        this.cache_.initTime = seconds;
+        this.off('canplay', this.applyInitTime_);
+        this.one('canplay', this.applyInitTime_);
+        return;
+      }
+
       this.techCall_('setCurrentTime', seconds);
+      this.cache_.initTime = 0;
       return;
     } // cache last currentTime and return. default to 0 seconds
     //
@@ -23096,6 +23222,16 @@ function (_Component) {
 
     this.cache_.currentTime = this.techGet_('currentTime') || 0;
     return this.cache_.currentTime;
+  }
+  /**
+   * Apply the value of initTime stored in cache as currentTime.
+   *
+   * @private
+   */
+  ;
+
+  _proto.applyInitTime_ = function applyInitTime_() {
+    this.currentTime(this.cache_.initTime);
   }
   /**
    * Normally gets the length in time of the video in seconds;
@@ -23410,6 +23546,41 @@ function (_Component) {
   ;
 
   _proto.requestFullscreen = function requestFullscreen(fullscreenOptions) {
+    var PromiseClass = this.options_.Promise || window$1.Promise;
+
+    if (PromiseClass) {
+      var self = this;
+      return new PromiseClass(function (resolve, reject) {
+        function offHandler() {
+          self.off(self.fsApi_.fullscreenerror, errorHandler);
+          self.off(self.fsApi_.fullscreenchange, changeHandler);
+        }
+
+        function changeHandler() {
+          offHandler();
+          resolve();
+        }
+
+        function errorHandler(e, err) {
+          offHandler();
+          reject(err);
+        }
+
+        self.one('fullscreenchange', changeHandler);
+        self.one('fullscreenerror', errorHandler);
+        var promise = self.requestFullscreenHelper_(fullscreenOptions);
+
+        if (promise) {
+          promise.then(offHandler, offHandler);
+          return promise;
+        }
+      });
+    }
+
+    return this.requestFullscreenHelper_();
+  };
+
+  _proto.requestFullscreenHelper_ = function requestFullscreenHelper_(fullscreenOptions) {
     var _this10 = this;
 
     var fsOptions; // Only pass fullscreen options to requestFullscreen in spec-compliant browsers.
@@ -23460,6 +23631,41 @@ function (_Component) {
   ;
 
   _proto.exitFullscreen = function exitFullscreen() {
+    var PromiseClass = this.options_.Promise || window$1.Promise;
+
+    if (PromiseClass) {
+      var self = this;
+      return new PromiseClass(function (resolve, reject) {
+        function offHandler() {
+          self.off(self.fsApi_.fullscreenerror, errorHandler);
+          self.off(self.fsApi_.fullscreenchange, changeHandler);
+        }
+
+        function changeHandler() {
+          offHandler();
+          resolve();
+        }
+
+        function errorHandler(e, err) {
+          offHandler();
+          reject(err);
+        }
+
+        self.one('fullscreenchange', changeHandler);
+        self.one('fullscreenerror', errorHandler);
+        var promise = self.exitFullscreenHelper_();
+
+        if (promise) {
+          promise.then(offHandler, offHandler);
+          return promise;
+        }
+      });
+    }
+
+    return this.exitFullscreenHelper_();
+  };
+
+  _proto.exitFullscreenHelper_ = function exitFullscreenHelper_() {
     var _this11 = this;
 
     if (this.fsApi_.requestFullscreen) {
@@ -23545,6 +23751,24 @@ function (_Component) {
      */
 
     this.trigger('exitFullWindow');
+  }
+  /**
+   * Disable Picture-in-Picture mode.
+   *
+   * @param {boolean} value
+   *                  - true will disable Picture-in-Picture mode
+   *                  - false will enable Picture-in-Picture mode
+   */
+  ;
+
+  _proto.disablePictureInPicture = function disablePictureInPicture(value) {
+    if (value === undefined) {
+      return this.techGet_('disablePictureInPicture');
+    }
+
+    this.techCall_('setDisablePictureInPicture', value);
+    this.options_.disablePictureInPicture = value;
+    this.trigger('disablepictureinpicturechanged');
   }
   /**
    * Check if the player is in Picture-in-Picture mode or tell the player that it
@@ -25393,6 +25617,23 @@ ALL.names.forEach(function (name) {
   };
 });
 /**
+ * Get or set the `Player`'s crossorigin option. For the HTML5 player, this
+ * sets the `crossOrigin` property on the `<video>` tag to control the CORS
+ * behavior.
+ *
+ * @see [Video Element Attributes]{@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin}
+ *
+ * @param {string} [value]
+ *        The value to set the `Player`'s crossorigin to. If an argument is
+ *        given, must be one of `anonymous` or `use-credentials`.
+ *
+ * @return {string|undefined}
+ *         - The current crossorigin value of the `Player` when getting.
+ *         - undefined when setting
+ */
+
+Player.prototype.crossorigin = Player.prototype.crossOrigin;
+/**
  * Global enumeration of players.
  *
  * The keys are the player IDs and the values are either the {@link Player}
@@ -25774,9 +26015,7 @@ var createPluginFactory = function createPluginFactory(name, PluginSubClass) {
  */
 
 
-var Plugin =
-/*#__PURE__*/
-function () {
+var Plugin = /*#__PURE__*/function () {
   /**
    * Creates an instance of this class.
    *
@@ -26716,7 +26955,7 @@ videojs$1.defineLazyProperty = defineLazyProperty;
 
 /**
  * @videojs/http-streaming
- * @version 1.12.2
+ * @version 1.13.3
  * @copyright 2020 Brightcove, Inc
  * @license Apache-2.0
  */
@@ -28349,9 +28588,7 @@ var textRanges = function textRanges(ranges) {
   return result;
 };
 
-var utils =
-/*#__PURE__*/
-Object.freeze({
+var utils = /*#__PURE__*/Object.freeze({
   createTransferableMessage: createTransferableMessage,
   initSegmentId: initSegmentId,
   segmentKeyId: segmentKeyId,
@@ -29877,36 +30114,63 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
       };
 
       videoTrun = function videoTrun(track, offset) {
-        var bytes, samples, sample, i;
+        var bytesOffest, bytes, header, samples, sample, i;
         samples = track.samples || [];
         offset += 8 + 12 + 16 * samples.length;
-        bytes = trunHeader(samples, offset);
+        header = trunHeader(samples, offset);
+        bytes = new Uint8Array(header.length + samples.length * 16);
+        bytes.set(header);
+        bytesOffest = header.length;
 
         for (i = 0; i < samples.length; i++) {
           sample = samples[i];
-          bytes = bytes.concat([(sample.duration & 0xFF000000) >>> 24, (sample.duration & 0xFF0000) >>> 16, (sample.duration & 0xFF00) >>> 8, sample.duration & 0xFF, // sample_duration
-          (sample.size & 0xFF000000) >>> 24, (sample.size & 0xFF0000) >>> 16, (sample.size & 0xFF00) >>> 8, sample.size & 0xFF, // sample_size
-          sample.flags.isLeading << 2 | sample.flags.dependsOn, sample.flags.isDependedOn << 6 | sample.flags.hasRedundancy << 4 | sample.flags.paddingValue << 1 | sample.flags.isNonSyncSample, sample.flags.degradationPriority & 0xF0 << 8, sample.flags.degradationPriority & 0x0F, // sample_flags
-          (sample.compositionTimeOffset & 0xFF000000) >>> 24, (sample.compositionTimeOffset & 0xFF0000) >>> 16, (sample.compositionTimeOffset & 0xFF00) >>> 8, sample.compositionTimeOffset & 0xFF // sample_composition_time_offset
-          ]);
+          bytes[bytesOffest++] = (sample.duration & 0xFF000000) >>> 24;
+          bytes[bytesOffest++] = (sample.duration & 0xFF0000) >>> 16;
+          bytes[bytesOffest++] = (sample.duration & 0xFF00) >>> 8;
+          bytes[bytesOffest++] = sample.duration & 0xFF; // sample_duration
+
+          bytes[bytesOffest++] = (sample.size & 0xFF000000) >>> 24;
+          bytes[bytesOffest++] = (sample.size & 0xFF0000) >>> 16;
+          bytes[bytesOffest++] = (sample.size & 0xFF00) >>> 8;
+          bytes[bytesOffest++] = sample.size & 0xFF; // sample_size
+
+          bytes[bytesOffest++] = sample.flags.isLeading << 2 | sample.flags.dependsOn;
+          bytes[bytesOffest++] = sample.flags.isDependedOn << 6 | sample.flags.hasRedundancy << 4 | sample.flags.paddingValue << 1 | sample.flags.isNonSyncSample;
+          bytes[bytesOffest++] = sample.flags.degradationPriority & 0xF0 << 8;
+          bytes[bytesOffest++] = sample.flags.degradationPriority & 0x0F; // sample_flags
+
+          bytes[bytesOffest++] = (sample.compositionTimeOffset & 0xFF000000) >>> 24;
+          bytes[bytesOffest++] = (sample.compositionTimeOffset & 0xFF0000) >>> 16;
+          bytes[bytesOffest++] = (sample.compositionTimeOffset & 0xFF00) >>> 8;
+          bytes[bytesOffest++] = sample.compositionTimeOffset & 0xFF; // sample_composition_time_offset
         }
 
-        return box(types.trun, new Uint8Array(bytes));
+        return box(types.trun, bytes);
       };
 
       audioTrun = function audioTrun(track, offset) {
-        var bytes, samples, sample, i;
+        var bytes, bytesOffest, header, samples, sample, i;
         samples = track.samples || [];
         offset += 8 + 12 + 8 * samples.length;
-        bytes = trunHeader(samples, offset);
+        header = trunHeader(samples, offset);
+        bytes = new Uint8Array(header.length + samples.length * 8);
+        bytes.set(header);
+        bytesOffest = header.length;
 
         for (i = 0; i < samples.length; i++) {
           sample = samples[i];
-          bytes = bytes.concat([(sample.duration & 0xFF000000) >>> 24, (sample.duration & 0xFF0000) >>> 16, (sample.duration & 0xFF00) >>> 8, sample.duration & 0xFF, // sample_duration
-          (sample.size & 0xFF000000) >>> 24, (sample.size & 0xFF0000) >>> 16, (sample.size & 0xFF00) >>> 8, sample.size & 0xFF]); // sample_size
+          bytes[bytesOffest++] = (sample.duration & 0xFF000000) >>> 24;
+          bytes[bytesOffest++] = (sample.duration & 0xFF0000) >>> 16;
+          bytes[bytesOffest++] = (sample.duration & 0xFF00) >>> 8;
+          bytes[bytesOffest++] = sample.duration & 0xFF; // sample_duration
+
+          bytes[bytesOffest++] = (sample.size & 0xFF000000) >>> 24;
+          bytes[bytesOffest++] = (sample.size & 0xFF0000) >>> 16;
+          bytes[bytesOffest++] = (sample.size & 0xFF00) >>> 8;
+          bytes[bytesOffest++] = sample.size & 0xFF; // sample_size
         }
 
-        return box(types.trun, new Uint8Array(bytes));
+        return box(types.trun, bytes);
       };
 
       trun = function trun(track, offset) {
@@ -30263,29 +30527,38 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
         }, []));
         return obj;
       }, {});
-    }; // Frames-of-silence to use for filling in missing AAC frames
-
-
-    var coneOfSilence = {
-      96000: [highPrefix, [227, 64], zeroFill(154), [56]],
-      88200: [highPrefix, [231], zeroFill(170), [56]],
-      64000: [highPrefix, [248, 192], zeroFill(240), [56]],
-      48000: [highPrefix, [255, 192], zeroFill(268), [55, 148, 128], zeroFill(54), [112]],
-      44100: [highPrefix, [255, 192], zeroFill(268), [55, 163, 128], zeroFill(84), [112]],
-      32000: [highPrefix, [255, 192], zeroFill(268), [55, 234], zeroFill(226), [112]],
-      24000: [highPrefix, [255, 192], zeroFill(268), [55, 255, 128], zeroFill(268), [111, 112], zeroFill(126), [224]],
-      16000: [highPrefix, [255, 192], zeroFill(268), [55, 255, 128], zeroFill(268), [111, 255], zeroFill(269), [223, 108], zeroFill(195), [1, 192]],
-      12000: [lowPrefix, zeroFill(268), [3, 127, 248], zeroFill(268), [6, 255, 240], zeroFill(268), [13, 255, 224], zeroFill(268), [27, 253, 128], zeroFill(259), [56]],
-      11025: [lowPrefix, zeroFill(268), [3, 127, 248], zeroFill(268), [6, 255, 240], zeroFill(268), [13, 255, 224], zeroFill(268), [27, 255, 192], zeroFill(268), [55, 175, 128], zeroFill(108), [112]],
-      8000: [lowPrefix, zeroFill(268), [3, 121, 16], zeroFill(47), [7]]
     };
-    var silence = makeTable(coneOfSilence);
+
+    var silence;
+
+    var silence_1 = function silence_1() {
+      if (!silence) {
+        // Frames-of-silence to use for filling in missing AAC frames
+        var coneOfSilence = {
+          96000: [highPrefix, [227, 64], zeroFill(154), [56]],
+          88200: [highPrefix, [231], zeroFill(170), [56]],
+          64000: [highPrefix, [248, 192], zeroFill(240), [56]],
+          48000: [highPrefix, [255, 192], zeroFill(268), [55, 148, 128], zeroFill(54), [112]],
+          44100: [highPrefix, [255, 192], zeroFill(268), [55, 163, 128], zeroFill(84), [112]],
+          32000: [highPrefix, [255, 192], zeroFill(268), [55, 234], zeroFill(226), [112]],
+          24000: [highPrefix, [255, 192], zeroFill(268), [55, 255, 128], zeroFill(268), [111, 112], zeroFill(126), [224]],
+          16000: [highPrefix, [255, 192], zeroFill(268), [55, 255, 128], zeroFill(268), [111, 255], zeroFill(269), [223, 108], zeroFill(195), [1, 192]],
+          12000: [lowPrefix, zeroFill(268), [3, 127, 248], zeroFill(268), [6, 255, 240], zeroFill(268), [13, 255, 224], zeroFill(268), [27, 253, 128], zeroFill(259), [56]],
+          11025: [lowPrefix, zeroFill(268), [3, 127, 248], zeroFill(268), [6, 255, 240], zeroFill(268), [13, 255, 224], zeroFill(268), [27, 255, 192], zeroFill(268), [55, 175, 128], zeroFill(108), [112]],
+          8000: [lowPrefix, zeroFill(268), [3, 121, 16], zeroFill(47), [7]]
+        };
+        silence = makeTable(coneOfSilence);
+      }
+
+      return silence;
+    };
     /**
      * mux.js
      *
      * Copyright (c) Brightcove
      * Licensed Apache-2.0 https://github.com/videojs/mux.js/blob/master/LICENSE
      */
+
 
     var ONE_SECOND_IN_TS = 90000,
         // 90kHz clock
@@ -30398,7 +30671,7 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
         return;
       }
 
-      silentFrame = silence[track.samplerate];
+      silentFrame = silence_1()[track.samplerate];
 
       if (!silentFrame) {
         // we don't have a silent frame pregenerated for the sample rate, so use a frame
@@ -32390,7 +32663,6 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
 
             switch (data.streamType) {
               case streamTypes.H264_STREAM_TYPE:
-              case streamTypes.H264_STREAM_TYPE:
                 stream$$1 = video;
                 streamType = 'video';
                 break;
@@ -33009,9 +33281,6 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
           case 0x09:
             event.nalUnitType = 'access_unit_delimiter_rbsp';
             break;
-
-          default:
-            break;
         } // This triggers data on the H264Stream
 
 
@@ -33590,13 +33859,15 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
     };
 
     _AacStream.prototype = new stream();
-    var aac = _AacStream;
-    var H264Stream = h264.H264Stream;
-    var isLikelyAacData$1 = utils.isLikelyAacData;
-    var ONE_SECOND_IN_TS$3 = clock.ONE_SECOND_IN_TS; // constants
+    var aac = _AacStream; // constants
 
     var AUDIO_PROPERTIES = ['audioobjecttype', 'channelcount', 'samplerate', 'samplingfrequencyindex', 'samplesize'];
-    var VIDEO_PROPERTIES = ['width', 'height', 'profileIdc', 'levelIdc', 'profileCompatibility', 'sarRatio']; // object types
+    var audioProperties = AUDIO_PROPERTIES;
+    var VIDEO_PROPERTIES = ['width', 'height', 'profileIdc', 'levelIdc', 'profileCompatibility', 'sarRatio'];
+    var videoProperties = VIDEO_PROPERTIES;
+    var H264Stream = h264.H264Stream;
+    var isLikelyAacData$1 = utils.isLikelyAacData;
+    var ONE_SECOND_IN_TS$3 = clock.ONE_SECOND_IN_TS; // object types
 
     var _VideoSegmentStream, _AudioSegmentStream, _Transmuxer, _CoalesceStream;
     /**
@@ -33667,7 +33938,7 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
         trackDecodeInfo.collectDtsInfo(track, data);
 
         if (track) {
-          AUDIO_PROPERTIES.forEach(function (prop) {
+          audioProperties.forEach(function (prop) {
             track[prop] = data[prop];
           });
         } // buffer audio data until end() is called
@@ -33677,7 +33948,7 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
       };
 
       this.setEarliestDts = function (earliestDts) {
-        earliestAllowedDts = earliestDts - track.timelineStartInfo.baseMediaDecodeTime;
+        earliestAllowedDts = earliestDts;
       };
 
       this.setVideoBaseMediaDecodeTime = function (baseMediaDecodeTime) {
@@ -33778,7 +34049,7 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
         if (nalUnit.nalUnitType === 'seq_parameter_set_rbsp' && !config) {
           config = nalUnit.config;
           track.sps = [nalUnit.data];
-          VIDEO_PROPERTIES.forEach(function (prop) {
+          videoProperties.forEach(function (prop) {
             track[prop] = config[prop];
           }, this);
         }
@@ -34262,12 +34533,12 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
 
       if (this.videoTrack) {
         timelineStartPts = this.videoTrack.timelineStartInfo.pts;
-        VIDEO_PROPERTIES.forEach(function (prop) {
+        videoProperties.forEach(function (prop) {
           event.info[prop] = this.videoTrack[prop];
         }, this);
       } else if (this.audioTrack) {
         timelineStartPts = this.audioTrack.timelineStartInfo.pts;
-        AUDIO_PROPERTIES.forEach(function (prop) {
+        audioProperties.forEach(function (prop) {
           event.info[prop] = this.audioTrack[prop];
         }, this);
       }
@@ -34447,6 +34718,7 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
         pipeline.h264Stream.pipe(pipeline.captionStream).pipe(pipeline.coalesceStream);
         pipeline.elementaryStream.on('data', function (data) {
           var i;
+          var baseMediaDecodeTime = !options.keepOriginalTimestamps ? self.baseMediaDecodeTime : 0;
 
           if (data.type === 'metadata') {
             i = data.tracks.length; // scan the tracks listed in the metadata
@@ -34454,10 +34726,10 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
             while (i--) {
               if (!videoTrack && data.tracks[i].type === 'video') {
                 videoTrack = data.tracks[i];
-                videoTrack.timelineStartInfo.baseMediaDecodeTime = self.baseMediaDecodeTime;
+                videoTrack.timelineStartInfo.baseMediaDecodeTime = baseMediaDecodeTime;
               } else if (!audioTrack && data.tracks[i].type === 'audio') {
                 audioTrack = data.tracks[i];
-                audioTrack.timelineStartInfo.baseMediaDecodeTime = self.baseMediaDecodeTime;
+                audioTrack.timelineStartInfo.baseMediaDecodeTime = baseMediaDecodeTime;
               }
             } // hook up the video segment stream to the first track with h264 data
 
@@ -34468,14 +34740,15 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
               pipeline.videoSegmentStream.on('timelineStartInfo', function (timelineStartInfo) {
                 // When video emits timelineStartInfo data after a flush, we forward that
                 // info to the AudioSegmentStream, if it exists, because video timeline
-                // data takes precedence.
-                if (audioTrack) {
+                // data takes precedence.  Do not do this if keepOriginalTimestamps is set,
+                // because this is a particularly subtle form of timestamp alteration.
+                if (audioTrack && !options.keepOriginalTimestamps) {
                   audioTrack.timelineStartInfo = timelineStartInfo; // On the first segment we trim AAC frames that exist before the
                   // very earliest DTS we have seen in video because Chrome will
                   // interpret any video track with a baseMediaDecodeTime that is
                   // non-zero as a gap.
 
-                  pipeline.audioSegmentStream.setEarliestDts(timelineStartInfo.dts);
+                  pipeline.audioSegmentStream.setEarliestDts(timelineStartInfo.dts - self.baseMediaDecodeTime);
                 }
               });
               pipeline.videoSegmentStream.on('processedGopsInfo', self.trigger.bind(self, 'gopInfo'));
@@ -34520,19 +34793,12 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
 
       this.setBaseMediaDecodeTime = function (baseMediaDecodeTime) {
         var pipeline = this.transmuxPipeline_;
-
-        if (!options.keepOriginalTimestamps) {
-          this.baseMediaDecodeTime = baseMediaDecodeTime;
-        }
+        this.baseMediaDecodeTime = baseMediaDecodeTime;
 
         if (audioTrack) {
           audioTrack.timelineStartInfo.dts = undefined;
           audioTrack.timelineStartInfo.pts = undefined;
           trackDecodeInfo.clearDtsInfo(audioTrack);
-
-          if (!options.keepOriginalTimestamps) {
-            audioTrack.timelineStartInfo.baseMediaDecodeTime = baseMediaDecodeTime;
-          }
 
           if (pipeline.audioTimestampRolloverStream) {
             pipeline.audioTimestampRolloverStream.discontinuity();
@@ -34548,10 +34814,6 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
           videoTrack.timelineStartInfo.pts = undefined;
           trackDecodeInfo.clearDtsInfo(videoTrack);
           pipeline.captionStream.reset();
-
-          if (!options.keepOriginalTimestamps) {
-            videoTrack.timelineStartInfo.baseMediaDecodeTime = baseMediaDecodeTime;
-          }
         }
 
         if (pipeline.timestampRolloverStream) {
@@ -34627,8 +34889,8 @@ var TransmuxWorker = new shimWorker("./transmuxer-worker.worker.js", function (w
       Transmuxer: _Transmuxer,
       VideoSegmentStream: _VideoSegmentStream,
       AudioSegmentStream: _AudioSegmentStream,
-      AUDIO_PROPERTIES: AUDIO_PROPERTIES,
-      VIDEO_PROPERTIES: VIDEO_PROPERTIES,
+      AUDIO_PROPERTIES: audioProperties,
+      VIDEO_PROPERTIES: videoProperties,
       // exported for testing
       generateVideoSegmentTimingInfo: generateVideoSegmentTimingInfo
     };
@@ -35980,6 +36242,10 @@ var VirtualSourceBuffer = function (_videojs$EventTarget) {
   }, {
     key: 'dispose',
     value: function dispose() {
+      if (this.transmuxer_) {
+        this.transmuxer_.terminate();
+      }
+
       this.trigger('dispose');
       this.off();
     }
@@ -38053,9 +38319,9 @@ var comparePlaylistResolution = function comparePlaylistResolution(left, right) 
  * @param {Number} playerBandwidth
  *        Current calculated bandwidth of the player
  * @param {Number} playerWidth
- *        Current width of the player element
+ *        Current width of the player element (should account for the device pixel ratio)
  * @param {Number} playerHeight
- *        Current height of the player element
+ *        Current height of the player element (should account for the device pixel ratio)
  * @param {Boolean} limitRenditionByPlayerDimensions
  *        True if the player width and height should be used during the selection, false otherwise
  * @return {Playlist} the highest bitrate playlist less than the
@@ -38178,7 +38444,8 @@ var simpleSelector = function simpleSelector(master, playerBandwidth, playerWidt
 
 
 var lastBandwidthSelector = function lastBandwidthSelector() {
-  return simpleSelector(this.playlists.master, this.systemBandwidth, parseInt(safeGetComputedStyle(this.tech_.el(), 'width'), 10), parseInt(safeGetComputedStyle(this.tech_.el(), 'height'), 10), this.limitRenditionByPlayerDimensions);
+  var pixelRatio = this.useDevicePixelRatio ? window$1.devicePixelRatio || 1 : 1;
+  return simpleSelector(this.playlists.master, this.systemBandwidth, parseInt(safeGetComputedStyle(this.tech_.el(), 'width'), 10) * pixelRatio, parseInt(safeGetComputedStyle(this.tech_.el(), 'height'), 10) * pixelRatio, this.limitRenditionByPlayerDimensions);
 };
 /**
  * Chooses the appropriate media playlist based on the potential to rebuffer
@@ -38998,8 +39265,11 @@ var SegmentLoader = function (_videojs$EventTarget) {
     key: 'resetEverything',
     value: function resetEverything(done) {
       this.ended_ = false;
-      this.resetLoader();
-      this.remove(0, this.duration_(), done); // clears fmp4 captions
+      this.resetLoader(); // remove from 0, the earliest point, to Infinity, to signify removal of everything.
+      // VTT Segment Loader doesn't need to do anything but in the regular SegmentLoader,
+      // we then clamp the value to duration if necessary.
+
+      this.remove(0, Infinity, done); // clears fmp4 captions
 
       if (this.captionParser_) {
         this.captionParser_.clearAllCaptions();
@@ -39043,6 +39313,13 @@ var SegmentLoader = function (_videojs$EventTarget) {
   }, {
     key: 'remove',
     value: function remove(start, end, done) {
+      // clamp end to duration if we need to remove everything.
+      // This is due to a browser bug that causes issues if we remove to Infinity.
+      // videojs/videojs-contrib-hls#1225
+      if (end === Infinity) {
+        end = this.duration_();
+      }
+
       if (this.sourceUpdater_) {
         this.sourceUpdater_.remove(start, end, done);
       }
@@ -39885,6 +40162,7 @@ var VTTSegmentLoader = function (_SegmentLoader) {
 
     _this.mediaSource_ = null;
     _this.subtitlesTrack_ = null;
+    _this.featuresNativeTextTracks_ = settings.featuresNativeTextTracks;
     return _this;
   }
   /**
@@ -40157,7 +40435,7 @@ var VTTSegmentLoader = function (_SegmentLoader) {
       }
 
       segmentInfo.cues.forEach(function (cue) {
-        _this3.subtitlesTrack_.addCue(cue);
+        _this3.subtitlesTrack_.addCue(_this3.featuresNativeTextTracks_ ? new window$1.VTTCue(cue.startTime, cue.endTime, cue.text) : cue);
       });
       this.handleUpdateEnd_();
     }
@@ -42358,6 +42636,47 @@ var loaderStats = ['mediaRequests', 'mediaRequestsAborted', 'mediaRequestsTimedo
 var sumLoaderStat = function sumLoaderStat(stat) {
   return this.audioSegmentLoader_[stat] + this.mainSegmentLoader_[stat];
 };
+
+var shouldSwitchToMedia = function shouldSwitchToMedia(_ref) {
+  var currentPlaylist = _ref.currentPlaylist,
+      nextPlaylist = _ref.nextPlaylist,
+      forwardBuffer = _ref.forwardBuffer,
+      bufferLowWaterLine = _ref.bufferLowWaterLine,
+      duration$$1 = _ref.duration,
+      log = _ref.log; // we have no other playlist to switch to
+
+  if (!nextPlaylist) {
+    videojs$1.log.warn('We received no playlist to switch to. Please check your stream.');
+    return false;
+  } // If the playlist is live, then we want to not take low water line into account.
+  // This is because in LIVE, the player plays 3 segments from the end of the
+  // playlist, and if `BUFFER_LOW_WATER_LINE` is greater than the duration availble
+  // in those segments, a viewer will never experience a rendition upswitch.
+
+
+  if (!currentPlaylist.endList) {
+    return true;
+  } // For the same reason as LIVE, we ignore the low water line when the VOD
+  // duration is below the max potential low water line
+
+
+  if (duration$$1 < Config.MAX_BUFFER_LOW_WATER_LINE) {
+    return true;
+  } // we want to switch down to lower resolutions quickly to continue playback, but
+
+
+  if (nextPlaylist.attributes.BANDWIDTH < currentPlaylist.attributes.BANDWIDTH) {
+    return true;
+  } // ensure we have some buffer before we switch up to prevent us running out of
+  // buffer while loading a higher rendition.
+
+
+  if (forwardBuffer >= bufferLowWaterLine) {
+    return true;
+  }
+
+  return false;
+};
 /**
  * the master playlist controller controller all interactons
  * between playlists and segmentloaders. At this time this mainly
@@ -42386,9 +42705,8 @@ var MasterPlaylistController = function (_videojs$EventTarget) {
         useCueTags = options.useCueTags,
         blacklistDuration = options.blacklistDuration,
         enableLowInitialPlaylist = options.enableLowInitialPlaylist,
-        sourceType = options.sourceType,
-        seekTo = options.seekTo,
-        cacheEncryptionKeys = options.cacheEncryptionKeys;
+        cacheEncryptionKeys = options.cacheEncryptionKeys,
+        sourceType = options.sourceType;
 
     if (!url) {
       throw new Error('A non-empty playlist URL is required');
@@ -42398,7 +42716,6 @@ var MasterPlaylistController = function (_videojs$EventTarget) {
     _this.withCredentials = withCredentials;
     _this.tech_ = tech;
     _this.hls_ = tech.hls;
-    _this.seekTo_ = seekTo;
     _this.sourceType_ = sourceType;
     _this.useCueTags_ = useCueTags;
     _this.blacklistDuration = blacklistDuration;
@@ -42469,7 +42786,8 @@ var MasterPlaylistController = function (_videojs$EventTarget) {
       loaderType: 'audio'
     }), options);
     _this.subtitleSegmentLoader_ = new VTTSegmentLoader(videojs$1.mergeOptions(segmentLoaderSettings, {
-      loaderType: 'vtt'
+      loaderType: 'vtt',
+      featuresNativeTextTracks: _this.tech_.featuresNativeTextTracks
     }), options);
 
     _this.setupSegmentLoaderListeners_(); // Create SegmentLoader stat-getters
@@ -42777,18 +43095,16 @@ var MasterPlaylistController = function (_videojs$EventTarget) {
 
         var forwardBuffer = buffered.length ? buffered.end(buffered.length - 1) - _this3.tech_.currentTime() : 0;
 
-        var bufferLowWaterLine = _this3.bufferLowWaterLine(); // If the playlist is live, then we want to not take low water line into account.
-        // This is because in LIVE, the player plays 3 segments from the end of the
-        // playlist, and if `BUFFER_LOW_WATER_LINE` is greater than the duration availble
-        // in those segments, a viewer will never experience a rendition upswitch.
+        var bufferLowWaterLine = _this3.bufferLowWaterLine();
 
-
-        if (!currentPlaylist.endList || // For the same reason as LIVE, we ignore the low water line when the VOD
-        // duration is below the max potential low water line
-        _this3.duration() < Config.MAX_BUFFER_LOW_WATER_LINE || // we want to switch down to lower resolutions quickly to continue playback, but
-        nextPlaylist.attributes.BANDWIDTH < currentPlaylist.attributes.BANDWIDTH || // ensure we have some buffer before we switch up to prevent us running out of
-        // buffer while loading a higher rendition.
-        forwardBuffer >= bufferLowWaterLine) {
+        if (shouldSwitchToMedia({
+          currentPlaylist: currentPlaylist,
+          nextPlaylist: nextPlaylist,
+          forwardBuffer: forwardBuffer,
+          bufferLowWaterLine: bufferLowWaterLine,
+          duration: _this3.duration(),
+          log: _this3.logger_
+        })) {
           _this3.masterPlaylistLoader_.media(nextPlaylist);
         }
 
@@ -42926,7 +43242,7 @@ var MasterPlaylistController = function (_videojs$EventTarget) {
       }
 
       if (this.tech_.ended()) {
-        this.seekTo_(0);
+        this.tech_.setCurrentTime(0);
       }
 
       if (this.hasPlayed_) {
@@ -42938,7 +43254,7 @@ var MasterPlaylistController = function (_videojs$EventTarget) {
 
       if (this.tech_.duration() === Infinity) {
         if (this.tech_.currentTime() < seekable$$1.start(0)) {
-          return this.seekTo_(seekable$$1.end(seekable$$1.length - 1));
+          return this.tech_.setCurrentTime(seekable$$1.end(seekable$$1.length - 1));
         }
       }
     }
@@ -42978,7 +43294,7 @@ var MasterPlaylistController = function (_videojs$EventTarget) {
           this.tech_.one('loadedmetadata', function () {
             _this5.trigger('firstplay');
 
-            _this5.seekTo_(seekable$$1.end(0));
+            _this5.tech_.setCurrentTime(seekable$$1.end(0));
 
             _this5.hasPlayed_ = true;
           });
@@ -42988,7 +43304,7 @@ var MasterPlaylistController = function (_videojs$EventTarget) {
 
         this.trigger('firstplay'); // seek to the live point
 
-        this.seekTo_(seekable$$1.end(0));
+        this.tech_.setCurrentTime(seekable$$1.end(0));
       }
 
       this.hasPlayed_ = true; // we can begin loading now that everything is ready
@@ -43406,7 +43722,11 @@ var MasterPlaylistController = function (_videojs$EventTarget) {
       var _this7 = this;
 
       this.trigger('dispose');
-      this.decrypter_.terminate();
+
+      if (this.decrypter_) {
+        this.decrypter_.terminate();
+      }
+
       this.masterPlaylistLoader_.dispose();
       this.mainSegmentLoader_.dispose();
       ['AUDIO', 'SUBTITLES'].forEach(function (type) {
@@ -43738,7 +44058,6 @@ var PlaybackWatcher = function () {
     classCallCheck(this, PlaybackWatcher);
     this.tech_ = options.tech;
     this.seekable = options.seekable;
-    this.seekTo = options.seekTo;
     this.allowSeeksWithinUnsafeLiveWindow = options.allowSeeksWithinUnsafeLiveWindow;
     this.media = options.media;
     this.consecutiveUpdates = 0;
@@ -43904,7 +44223,7 @@ var PlaybackWatcher = function () {
 
       if (typeof seekTo !== 'undefined') {
         this.logger_('Trying to seek outside of seekable at time ' + currentTime + ' with ' + ('seekable range ' + printableRange(seekable) + '. Seeking to ') + (seekTo + '.'));
-        this.seekTo(seekTo);
+        this.tech_.setCurrentTime(seekTo);
         return true;
       }
 
@@ -43937,7 +44256,7 @@ var PlaybackWatcher = function () {
 
       if (currentRange.length && currentTime + 3 <= currentRange.end(0)) {
         this.cancelTimer_();
-        this.seekTo(currentTime);
+        this.tech_.setCurrentTime(currentTime);
         this.logger_('Stopped at ' + currentTime + ' while inside a buffered region ' + ('[' + currentRange.start(0) + ' -> ' + currentRange.end(0) + ']. Attempting to resume ') + 'playback by seeking to the current time.'); // unknown waiting corrections may be useful for monitoring QoS
 
         this.tech_.trigger({
@@ -43976,7 +44295,7 @@ var PlaybackWatcher = function () {
         var livePoint = seekable.end(seekable.length - 1);
         this.logger_('Fell out of live window at time ' + currentTime + '. Seeking to ' + ('live point (seekable end) ' + livePoint));
         this.cancelTimer_();
-        this.seekTo(livePoint); // live window resyncs may be useful for monitoring QoS
+        this.tech_.setCurrentTime(livePoint); // live window resyncs may be useful for monitoring QoS
 
         this.tech_.trigger({
           type: 'usage',
@@ -43994,7 +44313,7 @@ var PlaybackWatcher = function () {
         // allows the video to catch up to the audio position without losing any audio
         // (only suffering ~3 seconds of frozen video and a pause in audio playback).
         this.cancelTimer_();
-        this.seekTo(currentTime); // video underflow may be useful for monitoring QoS
+        this.tech_.setCurrentTime(currentTime); // video underflow may be useful for monitoring QoS
 
         this.tech_.trigger({
           type: 'usage',
@@ -44084,7 +44403,7 @@ var PlaybackWatcher = function () {
 
       this.logger_('skipTheGap_:', 'currentTime:', currentTime, 'scheduled currentTime:', scheduledCurrentTime, 'nextRange start:', nextRange.start(0)); // only seek if we still have not played
 
-      this.seekTo(nextRange.start(0) + TIME_FUDGE_FACTOR);
+      this.tech_.setCurrentTime(nextRange.start(0) + TIME_FUDGE_FACTOR);
       this.tech_.trigger({
         type: 'usage',
         name: 'hls-gap-skip'
@@ -44267,36 +44586,7 @@ var reloadSourceOnError = function reloadSourceOnError(options) {
   initPlugin(this, options);
 };
 
-var version$1 = "1.12.2"; // since VHS handles HLS and DASH (and in the future, more types), use * to capture all
-
-videojs$1.use('*', function (player) {
-  return {
-    setSource: function setSource(srcObj, next) {
-      // pass null as the first argument to indicate that the source is not rejected
-      next(null, srcObj);
-    },
-    // VHS needs to know when seeks happen. For external seeks (generated at the player
-    // level), this middleware will capture the action. For internal seeks (generated at
-    // the tech level), we use a wrapped function so that we can handle it on our own
-    // (specified elsewhere).
-    setCurrentTime: function setCurrentTime(time) {
-      if (player.vhs && player.currentSource().src === player.vhs.source_.src) {
-        player.vhs.setCurrentTime(time);
-      }
-
-      return time;
-    },
-    // Sync VHS after play requests.
-    // This specifically handles replay where the order of actions is
-    // play, video element will seek to 0 (skipping the setCurrentTime middleware)
-    // then triggers a play event.
-    play: function play() {
-      if (player.vhs && player.currentSource().src === player.vhs.source_.src) {
-        player.vhs.setCurrentTime(player.tech_.currentTime());
-      }
-    }
-  };
-});
+var version$1 = "1.13.3";
 /**
  * @file videojs-http-streaming.js
  *
@@ -44622,6 +44912,7 @@ var HlsHandler = function (_Component) {
     _this.tech_ = tech;
     _this.source_ = source;
     _this.stats = {};
+    _this.ignoreNextSeekingEvent_ = false;
 
     _this.setOptions_();
 
@@ -44642,13 +44933,15 @@ var HlsHandler = function (_Component) {
       if (fullscreenElement && fullscreenElement.contains(_this.tech_.el())) {
         _this.masterPlaylistController_.smoothQualityChange_();
       }
-    }); // Handle seeking when looping - middleware doesn't handle this seek event from the tech
-
+    });
 
     _this.on(_this.tech_, 'seeking', function () {
-      if (this.tech_.currentTime() === 0 && this.tech_.player_.loop()) {
-        this.setCurrentTime(0);
+      if (this.ignoreNextSeekingEvent_) {
+        this.ignoreNextSeekingEvent_ = false;
+        return;
       }
+
+      this.setCurrentTime(this.tech_.currentTime());
     });
 
     _this.on(_this.tech_, 'error', function () {
@@ -44671,6 +44964,7 @@ var HlsHandler = function (_Component) {
       this.options_.withCredentials = this.options_.withCredentials || false;
       this.options_.handleManifestRedirects = this.options_.handleManifestRedirects || false;
       this.options_.limitRenditionByPlayerDimensions = this.options_.limitRenditionByPlayerDimensions === false ? false : true;
+      this.options_.useDevicePixelRatio = this.options_.useDevicePixelRatio || false;
       this.options_.smoothQualityChange = this.options_.smoothQualityChange || false;
       this.options_.useBandwidthFromLocalStorage = typeof this.source_.useBandwidthFromLocalStorage !== 'undefined' ? this.source_.useBandwidthFromLocalStorage : this.options_.useBandwidthFromLocalStorage || false;
       this.options_.customTagParsers = this.options_.customTagParsers || [];
@@ -44713,12 +45007,13 @@ var HlsHandler = function (_Component) {
 
       this.options_.enableLowInitialPlaylist = this.options_.enableLowInitialPlaylist && this.options_.bandwidth === Config.INITIAL_BANDWIDTH; // grab options passed to player.src
 
-      ['withCredentials', 'limitRenditionByPlayerDimensions', 'bandwidth', 'smoothQualityChange', 'customTagParsers', 'customTagMappers', 'handleManifestRedirects', 'cacheEncryptionKeys'].forEach(function (option) {
+      ['withCredentials', 'useDevicePixelRatio', 'limitRenditionByPlayerDimensions', 'bandwidth', 'smoothQualityChange', 'customTagParsers', 'customTagMappers', 'handleManifestRedirects', 'cacheEncryptionKeys'].forEach(function (option) {
         if (typeof _this2.source_[option] !== 'undefined') {
           _this2.options_[option] = _this2.source_[option];
         }
       });
       this.limitRenditionByPlayerDimensions = this.options_.limitRenditionByPlayerDimensions;
+      this.useDevicePixelRatio = this.options_.useDevicePixelRatio;
     }
     /**
      * called when player.src gets called, handle a new source
@@ -44741,14 +45036,10 @@ var HlsHandler = function (_Component) {
       this.options_.url = this.source_.src;
       this.options_.tech = this.tech_;
       this.options_.externHls = Hls$1;
-      this.options_.sourceType = simpleTypeFromSourceType(type); // Whenever we seek internally, we should update both the tech and call our own
-      // setCurrentTime function. This is needed because "seeking" events aren't always
-      // reliable. External seeks (via the player object) are handled via middleware.
+      this.options_.sourceType = simpleTypeFromSourceType(type); // Whenever we seek internally, we should update the tech
 
       this.options_.seekTo = function (time) {
         _this3.tech_.setCurrentTime(time);
-
-        _this3.setCurrentTime(time);
       };
 
       this.masterPlaylistController_ = new MasterPlaylistController(this.options_);
@@ -44975,6 +45266,11 @@ var HlsHandler = function (_Component) {
 
       this.on(this.masterPlaylistController_, 'progress', function () {
         this.tech_.trigger('progress');
+      }); // In the live case, we need to ignore the very first `seeking` event since
+      // that will be the result of the seek-to-live behavior
+
+      this.on(this.masterPlaylistController_, 'firstplay', function () {
+        this.ignoreNextSeekingEvent_ = true;
       });
       this.setupQualityLevels_(); // do nothing if the tech has been disposed already
       // this can occur if someone sets the src in player.ready(), for instance
