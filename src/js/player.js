@@ -744,6 +744,8 @@ class Player extends Component {
     this.fill(this.options_.fill);
     this.fluid(this.options_.fluid);
     this.aspectRatio(this.options_.aspectRatio);
+    // support both crossOrigin and crossorigin to reduce confusion and issues around the name
+    this.crossOrigin(this.options_.crossOrigin || this.options_.crossorigin);
 
     // Hide any links within the video/audio tag,
     // because IE doesn't hide them completely from screen readers.
@@ -780,6 +782,36 @@ class Player extends Component {
     this.el_ = el;
 
     return el;
+  }
+
+  /**
+   * Get or set the `Player`'s crossOrigin option. For the HTML5 player, this
+   * sets the `crossOrigin` property on the `<video>` tag to control the CORS
+   * behavior.
+   *
+   * @see [Video Element Attributes]{@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin}
+   *
+   * @param {string} [value]
+   *        The value to set the `Player`'s crossOrigin to. If an argument is
+   *        given, must be one of `anonymous` or `use-credentials`.
+   *
+   * @return {string|undefined}
+   *         - The current crossOrigin value of the `Player` when getting.
+   *         - undefined when setting
+   */
+  crossOrigin(value) {
+    if (!value) {
+      return this.techGet_('crossOrigin');
+    }
+
+    if (value !== 'anonymous' && value !== 'use-credentials') {
+      log.warn(`crossOrigin must be "anonymous" or "use-credentials", given "${value}"`);
+      return;
+    }
+
+    this.techCall_('setCrossOrigin', value);
+
+    return;
   }
 
   /**
@@ -929,7 +961,7 @@ class Player extends Component {
    * A getter/setter for the `Player`'s aspect ratio.
    *
    * @param {string} [ratio]
-   *        The value to set the `Player's aspect ratio to.
+   *        The value to set the `Player`'s aspect ratio to.
    *
    * @return {string|undefined}
    *         - The current aspect ratio of the `Player` when getting.
@@ -1087,6 +1119,7 @@ class Player extends Component {
       'playsinline': this.options_.playsinline,
       'preload': this.options_.preload,
       'loop': this.options_.loop,
+      'disablePictureInPicture': this.options_.disablePictureInPicture,
       'muted': this.options_.muted,
       'poster': this.poster(),
       'language': this.language(),
@@ -1157,6 +1190,7 @@ class Player extends Component {
     this.on(this.tech_, 'pause', this.handleTechPause_);
     this.on(this.tech_, 'durationchange', this.handleTechDurationChange_);
     this.on(this.tech_, 'fullscreenchange', this.handleTechFullscreenChange_);
+    this.on(this.tech_, 'fullscreenerror', this.handleTechFullscreenError_);
     this.on(this.tech_, 'enterpictureinpicture', this.handleTechEnterPictureInPicture_);
     this.on(this.tech_, 'leavepictureinpicture', this.handleTechLeavePictureInPicture_);
     this.on(this.tech_, 'error', this.handleTechError_);
@@ -2047,6 +2081,10 @@ class Player extends Component {
     }
   }
 
+  handleTechFullscreenError_(event, err) {
+    this.trigger('fullscreenerror', err);
+  }
+
   /**
    * @private
    */
@@ -2145,6 +2183,7 @@ class Player extends Component {
       // we set it to zero here to ensure that if we do start actually caching
       // it, we reset it along with everything else.
       currentTime: 0,
+      initTime: 0,
       inactivityTimeout: this.options_.inactivityTimeout,
       duration: NaN,
       lastVolume: 1,
@@ -2394,6 +2433,7 @@ class Player extends Component {
       return this.scrubbing_;
     }
     this.scrubbing_ = !!isScrubbing;
+    this.techCall_('setScrubbing', this.scrubbing_);
 
     if (isScrubbing) {
       this.addClass('vjs-scrubbing');
@@ -2416,7 +2456,14 @@ class Player extends Component {
       if (seconds < 0) {
         seconds = 0;
       }
+      if (!this.isReady_ || this.changingSrc_ || !this.tech_ || !this.tech_.isReady_) {
+        this.cache_.initTime = seconds;
+        this.off('canplay', this.applyInitTime_);
+        this.one('canplay', this.applyInitTime_);
+        return;
+      }
       this.techCall_('setCurrentTime', seconds);
+      this.cache_.initTime = 0;
       return;
     }
 
@@ -2428,6 +2475,15 @@ class Player extends Component {
     // never get updated.
     this.cache_.currentTime = (this.techGet_('currentTime') || 0);
     return this.cache_.currentTime;
+  }
+
+  /**
+   * Apply the value of initTime stored in cache as currentTime.
+   *
+   * @private
+   */
+  applyInitTime_() {
+    this.currentTime(this.cache_.initTime);
   }
 
   /**
@@ -2728,6 +2784,41 @@ class Player extends Component {
    * @fires Player#fullscreenchange
    */
   requestFullscreen(fullscreenOptions) {
+    const PromiseClass = this.options_.Promise || window.Promise;
+
+    if (PromiseClass) {
+      const self = this;
+
+      return new PromiseClass((resolve, reject) => {
+        function offHandler() {
+          self.off(self.fsApi_.fullscreenerror, errorHandler);
+          self.off(self.fsApi_.fullscreenchange, changeHandler);
+        }
+        function changeHandler() {
+          offHandler();
+          resolve();
+        }
+        function errorHandler(e, err) {
+          offHandler();
+          reject(err);
+        }
+
+        self.one('fullscreenchange', changeHandler);
+        self.one('fullscreenerror', errorHandler);
+
+        const promise = self.requestFullscreenHelper_(fullscreenOptions);
+
+        if (promise) {
+          promise.then(offHandler, offHandler);
+          return promise;
+        }
+      });
+    }
+
+    return this.requestFullscreenHelper_();
+  }
+
+  requestFullscreenHelper_(fullscreenOptions) {
     let fsOptions;
 
     // Only pass fullscreen options to requestFullscreen in spec-compliant browsers.
@@ -2771,6 +2862,41 @@ class Player extends Component {
    * @fires Player#fullscreenchange
    */
   exitFullscreen() {
+    const PromiseClass = this.options_.Promise || window.Promise;
+
+    if (PromiseClass) {
+      const self = this;
+
+      return new PromiseClass((resolve, reject) => {
+        function offHandler() {
+          self.off(self.fsApi_.fullscreenerror, errorHandler);
+          self.off(self.fsApi_.fullscreenchange, changeHandler);
+        }
+        function changeHandler() {
+          offHandler();
+          resolve();
+        }
+        function errorHandler(e, err) {
+          offHandler();
+          reject(err);
+        }
+
+        self.one('fullscreenchange', changeHandler);
+        self.one('fullscreenerror', errorHandler);
+
+        const promise = self.exitFullscreenHelper_();
+
+        if (promise) {
+          promise.then(offHandler, offHandler);
+          return promise;
+        }
+      });
+    }
+
+    return this.exitFullscreenHelper_();
+  }
+
+  exitFullscreenHelper_() {
     if (this.fsApi_.requestFullscreen) {
       const promise = document[this.fsApi_.exitFullscreen]();
 
@@ -2855,6 +2981,22 @@ class Player extends Component {
      * @type {EventTarget~Event}
      */
     this.trigger('exitFullWindow');
+  }
+
+  /**
+   * Disable Picture-in-Picture mode.
+   *
+   * @param {boolean} value
+   *                  - true will disable Picture-in-Picture mode
+   *                  - false will enable Picture-in-Picture mode
+   */
+  disablePictureInPicture(value) {
+    if (value === undefined) {
+      return this.techGet_('disablePictureInPicture');
+    }
+    this.techCall_('setDisablePictureInPicture', value);
+    this.options_.disablePictureInPicture = value;
+    this.trigger('disablepictureinpicturechanged');
   }
 
   /**
@@ -4654,6 +4796,23 @@ TRACK_TYPES.names.forEach(function(name) {
     return this[props.privateName];
   };
 });
+
+/**
+ * Get or set the `Player`'s crossorigin option. For the HTML5 player, this
+ * sets the `crossOrigin` property on the `<video>` tag to control the CORS
+ * behavior.
+ *
+ * @see [Video Element Attributes]{@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin}
+ *
+ * @param {string} [value]
+ *        The value to set the `Player`'s crossorigin to. If an argument is
+ *        given, must be one of `anonymous` or `use-credentials`.
+ *
+ * @return {string|undefined}
+ *         - The current crossorigin value of the `Player` when getting.
+ *         - undefined when setting
+ */
+Player.prototype.crossorigin = Player.prototype.crossOrigin;
 
 /**
  * Global enumeration of players.

@@ -1241,6 +1241,23 @@ QUnit.test('should add an audio player region if an audio el is used', function(
   player.dispose();
 });
 
+QUnit.test('should setScrubbing when seeking or not seeking', function(assert) {
+  const player = TestHelpers.makePlayer();
+  let isScrubbing;
+
+  player.tech_.setScrubbing = (_isScrubbing) => {
+    isScrubbing = _isScrubbing;
+  };
+
+  assert.equal(player.scrubbing(), false, 'player is not scrubbing');
+
+  player.scrubbing(true);
+  assert.ok(isScrubbing, "tech's setScrubbing was called with true");
+
+  player.scrubbing(false);
+  assert.notOk(isScrubbing, "tech's setScrubbing was called with false");
+});
+
 QUnit.test('should not be scrubbing while not seeking', function(assert) {
   const player = TestHelpers.makePlayer();
 
@@ -2212,4 +2229,32 @@ QUnit.test('controlBar behaviour with mouseenter and mouseleave events', functio
   assert.equal(player.options_.inactivityTimeout, player.cache_.inactivityTimeout, 'mouse leaves control-bar, inactivityTimeout is set to default value (2000)');
 
   player.dispose();
+});
+
+QUnit.test('Should be able to set a currentTime after player initialization as soon the canplay event is fired', function(assert) {
+  const player = TestHelpers.makePlayer({});
+
+  player.src('xyz.mp4');
+  player.currentTime(500);
+  assert.strictEqual(player.currentTime(), 0, 'currentTime value was not changed');
+  this.clock.tick(100);
+  player.trigger('canplay');
+  assert.strictEqual(player.currentTime(), 500, 'currentTime value is the one passed after initialization');
+});
+
+QUnit.test('Should accept multiple calls to currentTime after player initialization and apply the last value as soon the canplay event is fired', function(assert) {
+  const player = TestHelpers.makePlayer({});
+  const spyInitTime = sinon.spy(player, 'applyInitTime_');
+  const spyCurrentTime = sinon.spy(player, 'currentTime');
+
+  player.src('xyz.mp4');
+  player.currentTime(500);
+  player.currentTime(600);
+  player.currentTime(700);
+  player.currentTime(800);
+  this.clock.tick(100);
+  player.trigger('canplay');
+  assert.equal(spyInitTime.callCount, 1, 'After multiple calls to currentTime just apply the last one');
+  assert.ok(spyCurrentTime.calledAfter(spyInitTime), 'currentTime was called on canplay event listener');
+  assert.equal(player.currentTime(), 800, 'The last value passed is stored as the currentTime value');
 });
