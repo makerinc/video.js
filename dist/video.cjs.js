@@ -23177,7 +23177,12 @@ var Player = /*#__PURE__*/function (_Component) {
     }
 
     this.scrubbing_ = !!isScrubbing;
-    this.techCall_('setScrubbing', this.scrubbing_);
+
+    try {
+      this.techCall_('setScrubbing', this.scrubbing_);
+    } catch (e) {
+      log('setScrubbing not implemented');
+    }
 
     if (isScrubbing) {
       this.addClass('vjs-scrubbing');
