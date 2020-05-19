@@ -3205,6 +3205,72 @@ function mergeOptions() {
   return result;
 }
 
+var MapSham = /*#__PURE__*/function () {
+  function MapSham() {
+    this.map_ = {};
+  }
+
+  var _proto = MapSham.prototype;
+
+  _proto.has = function has(key) {
+    return key in this.map_;
+  };
+
+  _proto["delete"] = function _delete(key) {
+    var has = this.has(key);
+    delete this.map_[key];
+    return has;
+  };
+
+  _proto.set = function set(key, value) {
+    this.set_[key] = value;
+    return this;
+  };
+
+  _proto.forEach = function forEach(callback, thisArg) {
+    for (var key in this.map_) {
+      callback.call(thisArg, this.map_[key], key, this);
+    }
+  };
+
+  return MapSham;
+}();
+
+var Map$1 = window$1.Map ? window$1.Map : MapSham;
+
+var SetSham = /*#__PURE__*/function () {
+  function SetSham() {
+    this.set_ = {};
+  }
+
+  var _proto = SetSham.prototype;
+
+  _proto.has = function has(key) {
+    return key in this.set_;
+  };
+
+  _proto["delete"] = function _delete(key) {
+    var has = this.has(key);
+    delete this.set_[key];
+    return has;
+  };
+
+  _proto.add = function add(key) {
+    this.set_[key] = 1;
+    return this;
+  };
+
+  _proto.forEach = function forEach(callback, thisArg) {
+    for (var key in this.set_) {
+      callback.call(thisArg, key, key, this);
+    }
+  };
+
+  return SetSham;
+}();
+
+var Set = window$1.Set ? window$1.Set : SetSham;
+
 /**
  * Player Component - Base class for all UI objects
  *
@@ -3289,44 +3355,10 @@ var Component = /*#__PURE__*/function () {
     this.children_ = [];
     this.childIndex_ = {};
     this.childNameIndex_ = {};
-    var SetSham;
-
-    if (!window$1.Set) {
-      SetSham = /*#__PURE__*/function () {
-        function SetSham() {
-          this.set_ = {};
-        }
-
-        var _proto2 = SetSham.prototype;
-
-        _proto2.has = function has(key) {
-          return key in this.set_;
-        };
-
-        _proto2["delete"] = function _delete(key) {
-          var has = this.has(key);
-          delete this.set_[key];
-          return has;
-        };
-
-        _proto2.add = function add(key) {
-          this.set_[key] = 1;
-          return this;
-        };
-
-        _proto2.forEach = function forEach(callback, thisArg) {
-          for (var key in this.set_) {
-            callback.call(thisArg, key, key, this);
-          }
-        };
-
-        return SetSham;
-      }();
-    }
-
-    this.setTimeoutIds_ = window$1.Set ? new Set() : new SetSham();
-    this.setIntervalIds_ = window$1.Set ? new Set() : new SetSham();
-    this.rafIds_ = window$1.Set ? new Set() : new SetSham();
+    this.setTimeoutIds_ = new Set();
+    this.setIntervalIds_ = new Set();
+    this.rafIds_ = new Set();
+    this.namedRafs_ = new Map$1();
     this.clearingTimersOnDispose_ = false; // Add any child components in options
 
     if (options.initChildren !== false) {
@@ -4761,6 +4793,55 @@ var Component = /*#__PURE__*/function () {
     return id;
   }
   /**
+   * Request an animation frame, but only one named animation
+   * frame will be queued. Another will never be added until
+   * the previous one finishes.
+   *
+   * @param {string} name
+   *        The name to give this requestAnimationFrame
+   *
+   * @param  {Component~GenericCallback} fn
+   *         A function that will be bound to this component and executed just
+   *         before the browser's next repaint.
+   */
+  ;
+
+  _proto.requestNamedAnimationFrame = function requestNamedAnimationFrame(name, fn) {
+    var _this4 = this;
+
+    if (this.namedRafs_.has(name)) {
+      return;
+    }
+
+    this.clearTimersOnDispose_();
+    fn = bind(this, fn);
+    var id = this.requestAnimationFrame(function () {
+      fn();
+
+      if (_this4.namedRafs_.has(name)) {
+        _this4.namedRafs_["delete"](name);
+      }
+    });
+    this.namedRafs_.set(name, id);
+    return name;
+  }
+  /**
+   * Cancels a current named animation frame if it exists.
+   *
+   * @param {string} name
+   *        The name of the requestAnimationFrame to cancel.
+   */
+  ;
+
+  _proto.cancelNamedAnimationFrame = function cancelNamedAnimationFrame(name) {
+    if (!this.namedRafs_.has(name)) {
+      return;
+    }
+
+    this.cancelAnimationFrame(this.namedRafs_.get(name));
+    this.namedRafs_["delete"](name);
+  }
+  /**
    * Cancels a queued callback passed to {@link Component#requestAnimationFrame}
    * (rAF).
    *
@@ -4804,7 +4885,7 @@ var Component = /*#__PURE__*/function () {
   ;
 
   _proto.clearTimersOnDispose_ = function clearTimersOnDispose_() {
-    var _this4 = this;
+    var _this5 = this;
 
     if (this.clearingTimersOnDispose_) {
       return;
@@ -4812,13 +4893,18 @@ var Component = /*#__PURE__*/function () {
 
     this.clearingTimersOnDispose_ = true;
     this.one('dispose', function () {
-      [['rafIds_', 'cancelAnimationFrame'], ['setTimeoutIds_', 'clearTimeout'], ['setIntervalIds_', 'clearInterval']].forEach(function (_ref) {
+      [['namedRafs_', 'cancelNamedAnimationFrame'], ['rafIds_', 'cancelAnimationFrame'], ['setTimeoutIds_', 'clearTimeout'], ['setIntervalIds_', 'clearInterval']].forEach(function (_ref) {
         var idName = _ref[0],
             cancelName = _ref[1];
 
-        _this4[idName].forEach(_this4[cancelName], _this4);
+        // for a `Set` key will actually be the value again
+        // so forEach((val, val) =>` but for maps we want to use
+        // the key.
+        _this5[idName].forEach(function (val, key) {
+          return _this5[cancelName](key);
+        });
       });
-      _this4.clearingTimersOnDispose_ = false;
+      _this5.clearingTimersOnDispose_ = false;
     });
   }
   /**
@@ -11529,7 +11615,7 @@ var TimeDisplay = /*#__PURE__*/function (_Component) {
     }
 
     this.formattedTime_ = time;
-    this.requestAnimationFrame(function () {
+    this.requestNamedAnimationFrame('TimeDisplay#updateTextNode_', function () {
       if (!_this2.contentEl_) {
         return;
       }
@@ -12358,7 +12444,7 @@ var Slider = /*#__PURE__*/function (_Component) {
     }
 
     this.progress_ = progress;
-    this.requestAnimationFrame(function () {
+    this.requestNamedAnimationFrame('Slider#update', function () {
       // Set the new bar width or height
       var sizeKey = _this2.vertical() ? 'height' : 'width'; // Convert to a percentage for css value
 
@@ -12556,7 +12642,7 @@ var LoadProgressBar = /*#__PURE__*/function (_Component) {
   _proto.update = function update(event) {
     var _this2 = this;
 
-    this.requestAnimationFrame(function () {
+    this.requestNamedAnimationFrame('LoadProgressBar#update', function () {
       var liveTracker = _this2.player_.liveTracker;
 
       var buffered = _this2.player_.buffered();
@@ -12743,12 +12829,7 @@ var TimeTooltip = /*#__PURE__*/function (_Component) {
   _proto.updateTime = function updateTime(seekBarRect, seekBarPoint, time, cb) {
     var _this2 = this;
 
-    // If there is an existing rAF ID, cancel it so we don't over-queue.
-    if (this.rafId_) {
-      this.cancelAnimationFrame(this.rafId_);
-    }
-
-    this.rafId_ = this.requestAnimationFrame(function () {
+    this.requestNamedAnimationFrame('TimeTooltip#updateTime', function () {
       var content;
 
       var duration = _this2.player_.duration();
@@ -13067,7 +13148,7 @@ var SeekBar = /*#__PURE__*/function (_Slider) {
 
     var percent = _Slider.prototype.update.call(this);
 
-    this.requestAnimationFrame(function () {
+    this.requestNamedAnimationFrame('SeekBar#update', function () {
       var currentTime = _this2.player_.ended() ? _this2.player_.duration() : _this2.getCurrentTime_();
       var liveTracker = _this2.player_.liveTracker;
 
