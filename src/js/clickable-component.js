@@ -1,12 +1,12 @@
 /**
  * @file clickable-component.js
  */
-import Component from "./component";
-import * as Dom from "./utils/dom.js";
-import log from "./utils/log.js";
-import { assign } from "./utils/obj";
-import keycode from "keycode";
-import { TOUCH_ENABLED } from "./utils/browser.js";
+import Component from './component';
+import * as Dom from './utils/dom.js';
+import log from './utils/log.js';
+import { assign } from './utils/obj';
+import keycode from 'keycode';
+import { TOUCH_ENABLED } from './utils/browser.js';
 
 /**
  * Component which is clickable or keyboard actionable, but is not a
@@ -55,27 +55,25 @@ class ClickableComponent extends Component {
    * @return {Element}
    *         The element that gets created.
    */
-  createEl(tag = "div", props = {}, attributes = {}) {
+  createEl(tag = 'div', props = {}, attributes = {}) {
     props = assign(
       {
         innerHTML:
           '<span aria-hidden="true" class="vjs-icon-placeholder"></span>',
         className: this.buildCSSClass(),
-        tabIndex: 0,
+        tabIndex: 0
       },
       props
     );
 
-    if (tag === "button") {
-      log.error(
-        `Creating a ClickableComponent with an HTML element of ${tag} is not supported; use a Button instead.`
-      );
+    if (tag === 'button') {
+      log.error(`Creating a ClickableComponent with an HTML element of ${tag} is not supported; use a Button instead.`);
     }
 
     // Add ARIA attributes for clickable element which is not a native HTML button
     attributes = assign(
       {
-        role: "button",
+        role: 'button'
       },
       attributes
     );
@@ -107,13 +105,13 @@ class ClickableComponent extends Component {
    */
   createControlTextEl(el) {
     this.controlTextEl_ = Dom.createEl(
-      "span",
+      'span',
       {
-        className: "vjs-control-text",
+        className: 'vjs-control-text'
       },
       {
         // let the screen reader user know that the text of the element may change
-        "aria-live": "polite",
+        'aria-live': 'polite'
       }
     );
 
@@ -140,7 +138,7 @@ class ClickableComponent extends Component {
    */
   controlText(text, el = this.el()) {
     if (text === undefined) {
-      return this.controlText_ || "Need Text";
+      return this.controlText_ || 'Need Text';
     }
 
     const localizedText = this.localize(text);
@@ -149,7 +147,7 @@ class ClickableComponent extends Component {
     Dom.textContent(this.controlTextEl_, localizedText);
     if (!this.nonIconControl && !this.player_.options_.noUITitleAttributes) {
       // Set title attribute if only an icon is shown
-      el.setAttribute("title", localizedText);
+      el.setAttribute('title', localizedText);
     }
   }
 
@@ -169,15 +167,15 @@ class ClickableComponent extends Component {
   enable() {
     if (!this.enabled_) {
       this.enabled_ = true;
-      this.removeClass("vjs-disabled");
-      this.el_.setAttribute("aria-disabled", "false");
-      if (typeof this.tabIndex_ !== "undefined") {
-        this.el_.setAttribute("tabIndex", this.tabIndex_);
+      this.removeClass('vjs-disabled');
+      this.el_.setAttribute('aria-disabled', 'false');
+      if (typeof this.tabIndex_ !== 'undefined') {
+        this.el_.setAttribute('tabIndex', this.tabIndex_);
       }
-      const clickEvent = TOUCH_ENABLED ? "tap" : "click";
+      const clickEvent = TOUCH_ENABLED ? 'tap' : 'click';
 
       this.on(clickEvent, this.handleClick_);
-      this.on("keydown", this.handleKeyDown_);
+      this.on('keydown', this.handleKeyDown_);
     }
   }
 
@@ -186,17 +184,17 @@ class ClickableComponent extends Component {
    */
   disable() {
     this.enabled_ = false;
-    this.addClass("vjs-disabled");
-    this.el_.setAttribute("aria-disabled", "true");
-    if (typeof this.tabIndex_ !== "undefined") {
-      this.el_.removeAttribute("tabIndex");
+    this.addClass('vjs-disabled');
+    this.el_.setAttribute('aria-disabled', 'true');
+    if (typeof this.tabIndex_ !== 'undefined') {
+      this.el_.removeAttribute('tabIndex');
     }
-    this.off("mouseover", this.handleMouseOver_);
-    this.off("mouseout", this.handleMouseOut_);
-    const clickEvent = TOUCH_ENABLED ? "tap" : "click";
+    this.off('mouseover', this.handleMouseOver_);
+    this.off('mouseout', this.handleMouseOut_);
+    const clickEvent = TOUCH_ENABLED ? 'tap' : 'click';
 
     this.off(clickEvent, this.handleClick_);
-    this.off("keydown", this.handleKeyDown_);
+    this.off('keydown', this.handleKeyDown_);
   }
 
   /**
@@ -232,12 +230,12 @@ class ClickableComponent extends Component {
     // prevent the event from propagating through the DOM and triggering
     // Player hotkeys.
     if (
-      keycode.isEventKey(event, "Space") ||
-      keycode.isEventKey(event, "Enter")
+      keycode.isEventKey(event, 'Space') ||
+      keycode.isEventKey(event, 'Enter')
     ) {
       event.preventDefault();
       event.stopPropagation();
-      this.trigger("click");
+      this.trigger('click');
     } else {
       // Pass keypress handling up for unsupported keys
       super.handleKeyDown(event);
@@ -245,5 +243,5 @@ class ClickableComponent extends Component {
   }
 }
 
-Component.registerComponent("ClickableComponent", ClickableComponent);
+Component.registerComponent('ClickableComponent', ClickableComponent);
 export default ClickableComponent;

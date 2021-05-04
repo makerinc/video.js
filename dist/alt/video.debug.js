@@ -64831,6 +64831,9 @@
     videojs.plugin('reloadSourceOnError', reloadSourceOnError);
   }
 
+  videojs.DomData = DomData;
+  videojs.log.level('debug');
+
   return videojs;
 
 })));
