@@ -31,8 +31,10 @@ QUnit.module('Component', {
   },
   beforeEach() {
     this.clock = sinon.useFakeTimers();
+    this.player = TestHelpers.makePlayer();
   },
   afterEach() {
+    this.player.dispose();
     this.clock.restore();
   },
   after() {
@@ -42,16 +44,6 @@ QUnit.module('Component', {
     delete Component.components_.TestComponent4;
   }
 });
-
-const getFakePlayer = function() {
-  return {
-    // Fake player requries an ID
-    id() {
-      return 'player_1';
-    },
-    reportUserActivity() {}
-  };
-};
 
 QUnit.test('registerComponent() throws with bad arguments', function(assert) {
   assert.throws(
@@ -92,7 +84,7 @@ QUnit.test('registerComponent() throws with bad arguments', function(assert) {
 });
 
 QUnit.test('should create an element', function(assert) {
-  const comp = new Component(getFakePlayer(), {});
+  const comp = new Component(this.player, {});
 
   assert.ok(comp.el().nodeName);
 
@@ -100,7 +92,7 @@ QUnit.test('should create an element', function(assert) {
 });
 
 QUnit.test('should add a child component', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
 
   const child = comp.addChild('component');
 
@@ -114,7 +106,7 @@ QUnit.test('should add a child component', function(assert) {
 });
 
 QUnit.test('should add a child component to an index', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
 
   const child = comp.addChild('component');
 
@@ -151,7 +143,7 @@ QUnit.test('should insert element relative to the element of the component to in
   // for legibility of the test itself:
   /* eslint-disable no-unused-vars */
 
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
 
   const child0 = comp.addChild('component', {el: Dom.createEl('div', {}, {class: 'c0'})});
   const child1 = comp.addChild('component', {createEl: false});
@@ -164,8 +156,28 @@ QUnit.test('should insert element relative to the element of the component to in
   /* eslint-enable no-unused-vars */
 });
 
+QUnit.test('should allow for children that are elements', function(assert) {
+
+  // for legibility of the test itself:
+  /* eslint-disable no-unused-vars */
+
+  const comp = new Component(this.player);
+  const testEl = Dom.createEl('div');
+
+  // Add element as video el gets added to player
+  comp.el().appendChild(testEl);
+  comp.children_.unshift(testEl);
+
+  const child1 = comp.addChild('component', {el: Dom.createEl('div', {}, {class: 'c1'})});
+  const child2 = comp.addChild('component', {el: Dom.createEl('div', {}, {class: 'c4'})}, 0);
+
+  assert.ok(child2.el_.nextSibling === testEl, 'addChild should insert el before a sibling that is an element');
+
+  /* eslint-enable no-unused-vars */
+});
+
 QUnit.test('addChild should throw if the child does not exist', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
 
   assert.throws(function() {
     comp.addChild('non-existent-child');
@@ -175,8 +187,8 @@ QUnit.test('addChild should throw if the child does not exist', function(assert)
 });
 
 QUnit.test('addChild with instance should allow getting child correctly', function(assert) {
-  const comp = new Component(getFakePlayer());
-  const comp2 = new Component(getFakePlayer());
+  const comp = new Component(this.player);
+  const comp2 = new Component(this.player);
 
   comp2.name = function() {
     return 'foo';
@@ -190,7 +202,7 @@ QUnit.test('addChild with instance should allow getting child correctly', functi
 });
 
 QUnit.test('should add a child component with title case name', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
 
   const child = comp.addChild('Component');
 
@@ -204,7 +216,7 @@ QUnit.test('should add a child component with title case name', function(assert)
 });
 
 QUnit.test('should init child components from options', function(assert) {
-  const comp = new Component(getFakePlayer(), {
+  const comp = new Component(this.player, {
     children: {
       component: {}
     }
@@ -217,7 +229,7 @@ QUnit.test('should init child components from options', function(assert) {
 });
 
 QUnit.test('should init child components from simple children array', function(assert) {
-  const comp = new Component(getFakePlayer(), {
+  const comp = new Component(this.player, {
     children: [
       'component',
       'component',
@@ -232,7 +244,7 @@ QUnit.test('should init child components from simple children array', function(a
 });
 
 QUnit.test('should init child components from children array of objects', function(assert) {
-  const comp = new Component(getFakePlayer(), {
+  const comp = new Component(this.player, {
     children: [
       { name: 'component' },
       { name: 'component' },
@@ -258,7 +270,7 @@ QUnit.test('should do a deep merge of child options', function(assert) {
     }
   };
 
-  const comp = new Component(getFakePlayer(), {
+  const comp = new Component(this.player, {
     example: {
       childOne: { foo: 'baz', abc: '123' },
       childThree: false,
@@ -318,7 +330,7 @@ QUnit.test('should allows setting child options at the parent options level', fu
   };
 
   try {
-    parent = new Component(getFakePlayer(), options);
+    parent = new Component(this.player, options);
   } catch (err) {
     assert.ok(false, 'Child with `false` option was initialized');
   }
@@ -342,7 +354,7 @@ QUnit.test('should allows setting child options at the parent options level', fu
   };
 
   try {
-    parent = new Component(getFakePlayer(), options);
+    parent = new Component(this.player, options);
   } catch (err) {
     assert.ok(false, 'Child with `false` option was initialized');
   }
@@ -352,7 +364,7 @@ QUnit.test('should allows setting child options at the parent options level', fu
 });
 
 QUnit.test('should dispose of component and children', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
 
   // Add a child
   const child = comp.addChild('Component');
@@ -393,7 +405,7 @@ QUnit.test('should dispose of component and children', function(assert) {
 });
 
 QUnit.test('should add and remove event listeners to element', function(assert) {
-  const comp = new Component(getFakePlayer(), {});
+  const comp = new Component(this.player, {});
 
   // No need to make this async because we're triggering events inline.
   // We're going to trigger the event after removing the listener,
@@ -414,7 +426,7 @@ QUnit.test('should add and remove event listeners to element', function(assert) 
 });
 
 QUnit.test('should trigger a listener once using one()', function(assert) {
-  const comp = new Component(getFakePlayer(), {});
+  const comp = new Component(this.player, {});
 
   assert.expect(1);
 
@@ -430,7 +442,7 @@ QUnit.test('should trigger a listener once using one()', function(assert) {
 });
 
 QUnit.test('should be possible to pass data when you trigger an event', function(assert) {
-  const comp = new Component(getFakePlayer(), {});
+  const comp = new Component(this.player, {});
   const data1 = 'Data1';
   const data2 = {txt: 'Data2'};
 
@@ -450,7 +462,7 @@ QUnit.test('should be possible to pass data when you trigger an event', function
 });
 
 QUnit.test('should add listeners to other components and remove them', function(assert) {
-  const player = getFakePlayer();
+  const player = this.player;
   const comp1 = new Component(player);
   const comp2 = new Component(player);
   let listenerFired = 0;
@@ -483,7 +495,7 @@ QUnit.test('should add listeners to other components and remove them', function(
 });
 
 QUnit.test('should add listeners to other components and remove when them other component is disposed', function(assert) {
-  const player = getFakePlayer();
+  const player = this.player;
   const comp1 = new Component(player);
   const comp2 = new Component(player);
 
@@ -501,7 +513,7 @@ QUnit.test('should add listeners to other components and remove when them other 
 });
 
 QUnit.test('should add listeners to other components that are fired once', function(assert) {
-  const player = getFakePlayer();
+  const player = this.player;
   const comp1 = new Component(player);
   const comp2 = new Component(player);
   let listenerFired = 0;
@@ -522,7 +534,7 @@ QUnit.test('should add listeners to other components that are fired once', funct
 });
 
 QUnit.test('should add listeners to other element and remove them', function(assert) {
-  const player = getFakePlayer();
+  const player = this.player;
   const comp1 = new Component(player);
   const el = document.createElement('div');
   let listenerFired = 0;
@@ -563,7 +575,7 @@ QUnit.test('should add listeners to other element and remove them', function(ass
 });
 
 QUnit.test('should add listeners to other components that are fired once', function(assert) {
-  const player = getFakePlayer();
+  const player = this.player;
   const comp1 = new Component(player);
   const el = document.createElement('div');
   let listenerFired = 0;
@@ -587,7 +599,7 @@ QUnit.test('should trigger a listener when ready', function(assert) {
   let methodListenerFired;
   let syncListenerFired;
 
-  const comp = new Component(getFakePlayer(), {}, function() {
+  const comp = new Component(this.player, {}, function() {
     initListenerFired = true;
   });
 
@@ -627,7 +639,7 @@ QUnit.test('should trigger a listener when ready', function(assert) {
 QUnit.test('should not retrigger a listener when the listener calls triggerReady', function(assert) {
   let timesCalled = 0;
   let selfTriggered = false;
-  const comp = new Component(getFakePlayer(), {});
+  const comp = new Component(this.player, {});
 
   const readyListener = function() {
     timesCalled++;
@@ -651,7 +663,7 @@ QUnit.test('should not retrigger a listener when the listener calls triggerReady
 });
 
 QUnit.test('should add and remove a CSS class', function(assert) {
-  const comp = new Component(getFakePlayer(), {});
+  const comp = new Component(this.player, {});
 
   comp.addClass('test-class');
   assert.ok(comp.el().className.indexOf('test-class') !== -1);
@@ -666,7 +678,7 @@ QUnit.test('should add and remove a CSS class', function(assert) {
 });
 
 QUnit.test('should show and hide an element', function(assert) {
-  const comp = new Component(getFakePlayer(), {});
+  const comp = new Component(this.player, {});
 
   comp.hide();
   assert.ok(comp.hasClass('vjs-hidden') === true);
@@ -682,7 +694,7 @@ QUnit.test('dimension() should treat NaN and null as zero', function(assert) {
   const width = 300;
   const height = 150;
 
-  const comp = new Component(getFakePlayer(), {});
+  const comp = new Component(this.player, {});
   // set component dimension
 
   comp.dimensions(width, height);
@@ -709,7 +721,7 @@ QUnit.test('dimension() should treat NaN and null as zero', function(assert) {
 
 QUnit.test('should change the width and height of a component', function(assert) {
   const container = document.createElement('div');
-  const comp = new Component(getFakePlayer(), {});
+  const comp = new Component(this.player, {});
   const el = comp.el();
   const fixture = document.getElementById('qunit-fixture');
 
@@ -741,7 +753,7 @@ QUnit.test('should change the width and height of a component', function(assert)
 
 QUnit.test('should get the computed dimensions', function(assert) {
   const container = document.createElement('div');
-  const comp = new Component(getFakePlayer(), {});
+  const comp = new Component(this.player, {});
   const el = comp.el();
   const fixture = document.getElementById('qunit-fixture');
 
@@ -782,7 +794,7 @@ QUnit.test('should use a defined content el for appending children', function(as
     }
   }
 
-  const comp = new CompWithContent(getFakePlayer());
+  const comp = new CompWithContent(this.player);
   const child = comp.addChild('component');
 
   assert.ok(comp.children().length === 1);
@@ -803,7 +815,7 @@ QUnit.test('should use a defined content el for appending children', function(as
 });
 
 QUnit.test('should emit a tap event', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
   let singleTouch = {};
   const origTouch = browser.TOUCH_ENABLED;
 
@@ -862,7 +874,7 @@ QUnit.test('should emit a tap event', function(assert) {
 });
 
 QUnit.test('should provide timeout methods that automatically get cleared on component disposal', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
   let timeoutsFired = 0;
   const timeoutToClear = comp.setTimeout(function() {
     timeoutsFired++;
@@ -898,7 +910,7 @@ QUnit.test('should provide timeout methods that automatically get cleared on com
 });
 
 QUnit.test('should provide interval methods that automatically get cleared on component disposal', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
 
   let intervalsFired = 0;
 
@@ -932,8 +944,8 @@ QUnit.test('should provide interval methods that automatically get cleared on co
   assert.ok(intervalsFired === 5, 'Interval was cleared when component was disposed');
 });
 
-QUnit.test('should provide *AnimationFrame methods that automatically get cleared on component disposal', function(assert) {
-  const comp = new Component(getFakePlayer());
+QUnit.test('should provide a requestAnimationFrame method that is cleared on disposal', function(assert) {
+  const comp = new Component(this.player);
   const oldRAF = window.requestAnimationFrame;
   const oldCAF = window.cancelAnimationFrame;
 
@@ -947,7 +959,7 @@ QUnit.test('should provide *AnimationFrame methods that automatically get cleare
 
   const spyRAF = sinon.spy();
 
-  comp.requestAnimationFrame(spyRAF);
+  comp.requestNamedAnimationFrame('testing', spyRAF);
 
   assert.strictEqual(spyRAF.callCount, 0, 'rAF callback was not called immediately');
   this.clock.tick(1);
@@ -955,11 +967,11 @@ QUnit.test('should provide *AnimationFrame methods that automatically get cleare
   this.clock.tick(1);
   assert.strictEqual(spyRAF.callCount, 1, 'rAF callback was not called after a second "repaint"');
 
-  comp.cancelAnimationFrame(comp.requestAnimationFrame(spyRAF));
+  comp.cancelNamedAnimationFrame(comp.requestNamedAnimationFrame('testing', spyRAF));
   this.clock.tick(1);
   assert.strictEqual(spyRAF.callCount, 1, 'second rAF callback was not called because it was cancelled');
 
-  comp.requestAnimationFrame(spyRAF);
+  comp.requestNamedAnimationFrame('testing', spyRAF);
   comp.dispose();
   this.clock.tick(1);
   assert.strictEqual(spyRAF.callCount, 1, 'third rAF callback was not called because the component was disposed');
@@ -968,8 +980,44 @@ QUnit.test('should provide *AnimationFrame methods that automatically get cleare
   window.cancelAnimationFrame = oldCAF;
 });
 
-QUnit.test('*AnimationFrame methods fall back to timers if rAF not supported', function(assert) {
-  const comp = new Component(getFakePlayer());
+QUnit.test('should provide a requestNamedAnimationFrame method that is cleared on disposal', function(assert) {
+  const comp = new Component(this.player);
+  const oldRAF = window.requestAnimationFrame;
+  const oldCAF = window.cancelAnimationFrame;
+
+  // Stub the window.*AnimationFrame methods with window.setTimeout methods
+  // so we can control when the callbacks are called via sinon's timer stubs.
+  window.requestAnimationFrame = (fn) => window.setTimeout(fn, 1);
+  window.cancelAnimationFrame = (id) => window.clearTimeout(id);
+
+  // Make sure the component thinks it supports rAF.
+  comp.supportsRaf_ = true;
+
+  const spyRAF = sinon.spy();
+
+  comp.requestNamedAnimationFrame('testing', spyRAF);
+
+  assert.strictEqual(spyRAF.callCount, 0, 'rAF callback was not called immediately');
+  this.clock.tick(1);
+  assert.strictEqual(spyRAF.callCount, 1, 'rAF callback was called after a "repaint"');
+  this.clock.tick(1);
+  assert.strictEqual(spyRAF.callCount, 1, 'rAF callback was not called after a second "repaint"');
+
+  comp.cancelNamedAnimationFrame(comp.requestNamedAnimationFrame('testing', spyRAF));
+  this.clock.tick(1);
+  assert.strictEqual(spyRAF.callCount, 1, 'second rAF callback was not called because it was cancelled');
+
+  comp.requestNamedAnimationFrame('testing', spyRAF);
+  comp.dispose();
+  this.clock.tick(1);
+  assert.strictEqual(spyRAF.callCount, 1, 'third rAF callback was not called because the component was disposed');
+
+  window.requestAnimationFrame = oldRAF;
+  window.cancelAnimationFrame = oldCAF;
+});
+
+QUnit.test('requestAnimationFrame falls back to timers if rAF not supported', function(assert) {
+  const comp = new Component(this.player);
   const oldRAF = window.requestAnimationFrame;
   const oldCAF = window.cancelAnimationFrame;
 
@@ -997,7 +1045,7 @@ QUnit.test('*AnimationFrame methods fall back to timers if rAF not supported', f
 });
 
 QUnit.test('setTimeout should remove dispose handler on trigger', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
 
   comp.setTimeout(() => {}, 1);
 
@@ -1010,8 +1058,8 @@ QUnit.test('setTimeout should remove dispose handler on trigger', function(asser
   comp.dispose();
 });
 
-QUnit.test('requestAnimationFrame should remove dispose handler on trigger', function(assert) {
-  const comp = new Component(getFakePlayer());
+QUnit.test('requestNamedAnimationFrame should remove dispose handler on trigger', function(assert) {
+  const comp = new Component(this.player);
   const oldRAF = window.requestAnimationFrame;
   const oldCAF = window.cancelAnimationFrame;
 
@@ -1025,13 +1073,15 @@ QUnit.test('requestAnimationFrame should remove dispose handler on trigger', fun
 
   const spyRAF = sinon.spy();
 
-  comp.requestAnimationFrame(spyRAF);
+  comp.requestNamedAnimationFrame('testFrame', spyRAF);
 
-  assert.equal(comp.rafIds_.size, 1, 'we got a new dispose handler');
+  assert.equal(comp.rafIds_.size, 1, 'we got a new raf dispose handler');
+  assert.equal(comp.namedRafs_.size, 1, 'we got a new named raf dispose handler');
 
   this.clock.tick(1);
 
-  assert.equal(comp.rafIds_.size, 0, 'we removed our dispose handle');
+  assert.equal(comp.rafIds_.size, 0, 'we removed our raf dispose handle');
+  assert.equal(comp.namedRafs_.size, 0, 'we removed our named raf dispose handle');
 
   comp.dispose();
 
@@ -1040,7 +1090,7 @@ QUnit.test('requestAnimationFrame should remove dispose handler on trigger', fun
 });
 
 QUnit.test('requestAnimationFrame should remove dispose handler on trigger', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
   const oldRAF = window.requestAnimationFrame;
   const oldCAF = window.cancelAnimationFrame;
 
@@ -1069,7 +1119,7 @@ QUnit.test('requestAnimationFrame should remove dispose handler on trigger', fun
 });
 
 QUnit.test('setTimeout should be canceled on dispose', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
   let called = false;
   let clearId;
   const setId = comp.setTimeout(() => {
@@ -1096,7 +1146,7 @@ QUnit.test('setTimeout should be canceled on dispose', function(assert) {
 });
 
 QUnit.test('requestAnimationFrame should be canceled on dispose', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
   let called = false;
   let clearId;
   const setId = comp.requestAnimationFrame(() => {
@@ -1123,7 +1173,7 @@ QUnit.test('requestAnimationFrame should be canceled on dispose', function(asser
 });
 
 QUnit.test('setInterval should be canceled on dispose', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
   let called = false;
   let clearId;
   const setId = comp.setInterval(() => {
@@ -1149,8 +1199,124 @@ QUnit.test('setInterval should be canceled on dispose', function(assert) {
   assert.equal(called, false, 'setInterval was never called');
 });
 
+QUnit.test('requestNamedAnimationFrame should be canceled on dispose', function(assert) {
+  const comp = new Component(this.player);
+  let called = false;
+  let clearName;
+  const setName = comp.requestNamedAnimationFrame('testing', () => {
+    called = true;
+  });
+
+  const cancelNamedAnimationFrame = comp.cancelNamedAnimationFrame;
+
+  comp.cancelNamedAnimationFrame = (name) => {
+    clearName = name;
+    return cancelNamedAnimationFrame.call(comp, name);
+  };
+
+  assert.equal(comp.namedRafs_.size, 1, 'we added a named raf');
+  assert.equal(comp.rafIds_.size, 1, 'we added a raf id');
+
+  comp.dispose();
+
+  assert.equal(comp.namedRafs_.size, 0, 'we removed a named raf');
+  assert.equal(comp.rafIds_.size, 0, 'we removed a raf id');
+  assert.equal(clearName, setName, 'cancelNamedAnimationFrame was called');
+
+  this.clock.tick(1);
+
+  assert.equal(called, false, 'requestNamedAnimationFrame was never called');
+});
+
+QUnit.test('requestNamedAnimationFrame should only allow one raf of a specific name at a time', function(assert) {
+  const comp = new Component(this.player);
+  const calls = {
+    one: 0,
+    two: 0,
+    three: 0
+  };
+  const cancelNames = [];
+  const name = 'testing';
+  const handlerOne = () => {
+    assert.equal(comp.namedRafs_.size, 1, 'named raf still exists while function runs');
+    assert.equal(comp.rafIds_.size, 0, 'raf id does not exist during run');
+
+    calls.one++;
+  };
+  const handlerTwo = () => {
+    assert.equal(comp.namedRafs_.size, 1, 'named raf still exists while function runs');
+    assert.equal(comp.rafIds_.size, 0, 'raf id does not exist during run');
+    calls.two++;
+  };
+  const handlerThree = () => {
+    assert.equal(comp.namedRafs_.size, 1, 'named raf still exists while function runs');
+    assert.equal(comp.rafIds_.size, 0, 'raf id does not exist during run');
+    calls.three++;
+  };
+
+  const oldRAF = window.requestAnimationFrame;
+  const oldCAF = window.cancelAnimationFrame;
+
+  // Make sure the component thinks it supports rAF.
+  comp.supportsRaf_ = true;
+
+  // Stub the window.*AnimationFrame methods with window.setTimeout methods
+  // so we can control when the callbacks are called via sinon's timer stubs.
+  window.requestAnimationFrame = (fn) => window.setTimeout(fn, 1);
+  window.cancelAnimationFrame = (id) => window.clearTimeout(id);
+
+  const cancelNamedAnimationFrame = comp.cancelNamedAnimationFrame;
+
+  comp.cancelNamedAnimationFrame = (_name) => {
+    cancelNames.push(_name);
+    return cancelNamedAnimationFrame.call(comp, _name);
+  };
+
+  comp.requestNamedAnimationFrame(name, handlerOne);
+
+  assert.equal(comp.namedRafs_.size, 1, 'we added a named raf');
+  assert.equal(comp.rafIds_.size, 1, 'we added a raf id');
+
+  comp.requestNamedAnimationFrame(name, handlerTwo);
+
+  assert.deepEqual(cancelNames, [], 'no named cancels');
+  assert.equal(comp.namedRafs_.size, 1, 'still only one named raf');
+  assert.equal(comp.rafIds_.size, 1, 'still only one raf id');
+
+  this.clock.tick(1);
+
+  assert.equal(comp.namedRafs_.size, 0, 'we removed a named raf');
+  assert.equal(comp.rafIds_.size, 0, 'we removed a raf id');
+  assert.deepEqual(calls, {
+    one: 1,
+    two: 0,
+    three: 0
+  }, 'only handlerOne was called');
+
+  comp.requestNamedAnimationFrame(name, handlerOne);
+  comp.requestNamedAnimationFrame(name, handlerTwo);
+  comp.requestNamedAnimationFrame(name, handlerThree);
+
+  assert.deepEqual(cancelNames, [], 'no named cancels for testing');
+  assert.equal(comp.namedRafs_.size, 1, 'only added one named raf');
+  assert.equal(comp.rafIds_.size, 1, 'only added one named raf');
+
+  this.clock.tick(1);
+
+  assert.equal(comp.namedRafs_.size, 0, 'we removed a named raf');
+  assert.equal(comp.rafIds_.size, 0, 'we removed a raf id');
+  assert.deepEqual(calls, {
+    one: 2,
+    two: 0,
+    three: 0
+  }, 'only the handlerOne called');
+
+  window.requestAnimationFrame = oldRAF;
+  window.cancelAnimationFrame = oldCAF;
+});
+
 QUnit.test('$ and $$ functions', function(assert) {
-  const comp = new Component(getFakePlayer());
+  const comp = new Component(this.player);
   const contentEl = document.createElement('div');
   const children = [
     document.createElement('div'),
@@ -1167,7 +1333,7 @@ QUnit.test('$ and $$ functions', function(assert) {
 });
 
 QUnit.test('should use the stateful mixin', function(assert) {
-  const comp = new Component(getFakePlayer(), {});
+  const comp = new Component(this.player, {});
 
   assert.ok(Obj.isPlain(comp.state), '`state` is a plain object');
   assert.strictEqual(Object.prototype.toString.call(comp.setState), '[object Function]', '`setState` is a function');
@@ -1179,9 +1345,9 @@ QUnit.test('should use the stateful mixin', function(assert) {
 });
 
 QUnit.test('should remove child when the child moves to the other parent', function(assert) {
-  const parentComponent1 = new Component(getFakePlayer(), {});
-  const parentComponent2 = new Component(getFakePlayer(), {});
-  const childComponent = new Component(getFakePlayer(), {});
+  const parentComponent1 = new Component(this.player, {});
+  const parentComponent2 = new Component(this.player, {});
+  const childComponent = new Component(this.player, {});
 
   parentComponent1.addChild(childComponent);
 
@@ -1205,10 +1371,10 @@ QUnit.test('should remove child when the child moves to the other parent', funct
 });
 
 QUnit.test('getDescendant should work as expected', function(assert) {
-  const comp = new Component(getFakePlayer(), {name: 'component'});
-  const descendant1 = new Component(getFakePlayer(), {name: 'descendant1'});
-  const descendant2 = new Component(getFakePlayer(), {name: 'descendant2'});
-  const descendant3 = new Component(getFakePlayer(), {name: 'descendant3'});
+  const comp = new Component(this.player, {name: 'component'});
+  const descendant1 = new Component(this.player, {name: 'descendant1'});
+  const descendant2 = new Component(this.player, {name: 'descendant2'});
+  const descendant3 = new Component(this.player, {name: 'descendant3'});
 
   comp.addChild(descendant1);
   descendant1.addChild(descendant2);
@@ -1223,4 +1389,30 @@ QUnit.test('getDescendant should work as expected', function(assert) {
   assert.notOk(comp.getDescendant(['descendant1', 'descendant5']), 'undefined descendant returned');
 
   comp.dispose();
+});
+
+QUnit.test('ready queue should not run after dispose', function(assert) {
+  let option = false;
+  let callback = false;
+
+  const comp = new Component(this.player, {name: 'component'}, () => {
+    option = true;
+  });
+
+  comp.ready(() => {
+    callback = true;
+  });
+
+  comp.dispose();
+  comp.triggerReady();
+  // TODO: improve this error. It is a variant of:
+  // "Cannot read property 'parentNode' of null"
+  //
+  // but on some browsers such as IE 11 and safari 9 other errors are thrown,
+  // I think any error at all works for our purposes here.
+  assert.throws(() => this.clock.tick(1), /.*/, 'throws trigger error');
+
+  assert.notOk(option, 'ready option not run');
+  assert.notOk(callback, 'ready callback not run');
+
 });

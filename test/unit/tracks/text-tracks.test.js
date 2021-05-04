@@ -58,22 +58,18 @@ QUnit.test('Player track methods call the tech', function(assert) {
 
 QUnit.test('TextTrackDisplay initializes tracks on player ready', function(assert) {
   let calls = 0;
-  const ttd = new TextTrackDisplay({
-    on() {},
-    addTextTracks() {
-      calls--;
-    },
-    getChild() {
-      calls--;
-    },
-    ready() {
-      calls++;
-    }
-  }, {});
+  const player = TestHelpers.makePlayer();
+
+  player.addTextTrack = () => calls--;
+  player.getChild = () => calls--;
+  player.ready = () => calls++;
+
+  const ttd = new TextTrackDisplay(player, {});
 
   assert.equal(calls, 1, 'only a player.ready call was made');
 
   ttd.dispose();
+  player.dispose();
 });
 
 QUnit.test('listen to remove and add track events in native text tracks', function(assert) {
@@ -347,7 +343,7 @@ QUnit.test('removes cuechange event when text track is hidden for emulated track
     numTextTrackChanges++;
   });
 
-  tt.mode = 'showing';
+  tt.mode = 'disabled';
   this.clock.tick(1);
   assert.equal(
     numTextTrackChanges, 1,

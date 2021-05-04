@@ -28,7 +28,7 @@ class LoadProgressBar extends Component {
   constructor(player, options) {
     super(player, options);
     this.partEls_ = [];
-    this.on(player, 'progress', this.update);
+    this.on(player, 'progress', (e) => this.update(e));
   }
 
   /**
@@ -72,7 +72,7 @@ class LoadProgressBar extends Component {
    * @listens Player#progress
    */
   update(event) {
-    this.requestAnimationFrame(() => {
+    this.requestNamedAnimationFrame('LoadProgressBar#update', () => {
       const liveTracker = this.player_.liveTracker;
       const buffered = this.player_.buffered();
       const duration = (liveTracker && liveTracker.isLive()) ? liveTracker.seekableEnd() : this.player_.duration();

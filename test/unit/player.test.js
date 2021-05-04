@@ -349,6 +349,176 @@ QUnit.test('should asynchronously fire error events during source selection', fu
   log.error.restore();
 });
 
+QUnit.test('should retry setting source if error occurs and retryOnError: true', function(assert) {
+  const player = TestHelpers.makePlayer({
+    techOrder: ['html5'],
+    retryOnError: true,
+    sources: [
+      { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },
+      { src: 'http://vjs.zencdn.net/v/oceans2.mp4', type: 'video/mp4' },
+      { src: 'http://vjs.zencdn.net/v/oceans3.mp4', type: 'video/mp4' }
+    ]
+  });
+
+  assert.deepEqual(
+    player.currentSource(),
+    { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },
+    'first source set'
+  );
+
+  player.trigger('error');
+
+  assert.deepEqual(
+    player.currentSource(),
+    { src: 'http://vjs.zencdn.net/v/oceans2.mp4', type: 'video/mp4' },
+    'second source set'
+  );
+
+  player.trigger('error');
+
+  assert.deepEqual(
+    player.currentSource(),
+    { src: 'http://vjs.zencdn.net/v/oceans3.mp4', type: 'video/mp4' },
+    'last source set'
+  );
+
+  // No more sources to try so the previous source should remain
+  player.trigger('error');
+
+  assert.deepEqual(
+    player.currentSource(),
+    { src: 'http://vjs.zencdn.net/v/oceans3.mp4', type: 'video/mp4' },
+    'last source remains'
+  );
+
+  assert.deepEqual(
+    player.currentSources(),
+    [
+      { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },
+      { src: 'http://vjs.zencdn.net/v/oceans2.mp4', type: 'video/mp4' },
+      { src: 'http://vjs.zencdn.net/v/oceans3.mp4', type: 'video/mp4' }
+    ],
+    'currentSources() correctly returns the full source list'
+  );
+
+  player.dispose();
+});
+
+QUnit.test('should not retry setting source if retryOnError: true and error occurs during playback', function(assert) {
+  const player = TestHelpers.makePlayer({
+    techOrder: ['html5'],
+    retryOnError: true,
+    sources: [
+      { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },
+      { src: 'http://vjs.zencdn.net/v/oceans2.mp4', type: 'video/mp4' },
+      { src: 'http://vjs.zencdn.net/v/oceans3.mp4', type: 'video/mp4' }
+    ]
+  });
+
+  assert.deepEqual(
+    player.currentSource(),
+    { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },
+    'first source set'
+  );
+
+  player.trigger('error');
+
+  assert.deepEqual(
+    player.currentSource(),
+    { src: 'http://vjs.zencdn.net/v/oceans2.mp4', type: 'video/mp4' },
+    'second source set'
+  );
+
+  // Playback starts then error occurs
+  player.trigger('playing');
+  player.trigger('error');
+
+  assert.deepEqual(
+    player.currentSource(),
+    { src: 'http://vjs.zencdn.net/v/oceans2.mp4', type: 'video/mp4' },
+    'second source remains'
+  );
+
+  assert.deepEqual(
+    player.currentSources(),
+    [
+      { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },
+      { src: 'http://vjs.zencdn.net/v/oceans2.mp4', type: 'video/mp4' },
+      { src: 'http://vjs.zencdn.net/v/oceans3.mp4', type: 'video/mp4' }
+    ],
+    'currentSources() correctly returns the full source list'
+  );
+
+  player.dispose();
+});
+
+QUnit.test('aborts and resets retryOnError behavior if new src() call made during a retry', function(assert) {
+  const player = TestHelpers.makePlayer({
+    techOrder: ['html5'],
+    retryOnError: true,
+    sources: [
+      { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },
+      { src: 'http://vjs.zencdn.net/v/oceans2.mp4', type: 'video/mp4' },
+      { src: 'http://vjs.zencdn.net/v/oceans3.mp4', type: 'video/mp4' }
+    ]
+  });
+
+  assert.deepEqual(
+    player.currentSource(),
+    { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },
+    'first source set'
+  );
+
+  player.trigger('error');
+
+  assert.deepEqual(
+    player.currentSource(),
+    { src: 'http://vjs.zencdn.net/v/oceans2.mp4', type: 'video/mp4' },
+    'second source set'
+  );
+
+  // Setting a new source list should reset retry behavior and enable it for the new sources
+  player.src([
+    { src: 'http://vjs.zencdn.net/v/newSource.mp4', type: 'video/mp4' },
+    { src: 'http://vjs.zencdn.net/v/newSource2.mp4', type: 'video/mp4' },
+    { src: 'http://vjs.zencdn.net/v/newSource3.mp4', type: 'video/mp4' }
+  ]);
+
+  assert.deepEqual(
+    player.currentSource(),
+    { src: 'http://vjs.zencdn.net/v/newSource.mp4', type: 'video/mp4' },
+    'first new source set'
+  );
+
+  player.trigger('error');
+
+  assert.deepEqual(
+    player.currentSource(),
+    { src: 'http://vjs.zencdn.net/v/newSource2.mp4', type: 'video/mp4' },
+    'second new source set'
+  );
+
+  player.trigger('error');
+
+  assert.deepEqual(
+    player.currentSource(),
+    { src: 'http://vjs.zencdn.net/v/newSource3.mp4', type: 'video/mp4' },
+    'third new source set'
+  );
+
+  assert.deepEqual(
+    player.currentSources(),
+    [
+      { src: 'http://vjs.zencdn.net/v/newSource.mp4', type: 'video/mp4' },
+      { src: 'http://vjs.zencdn.net/v/newSource2.mp4', type: 'video/mp4' },
+      { src: 'http://vjs.zencdn.net/v/newSource3.mp4', type: 'video/mp4' }
+    ],
+    'currentSources() correctly returns the full new source list'
+  );
+
+  player.dispose();
+});
+
 QUnit.test('should suppress source error messages', function(assert) {
   sinon.stub(log, 'error');
   const clock = sinon.useFakeTimers();
@@ -476,6 +646,45 @@ QUnit.test('should default to 16:9 when fluid', function(assert) {
 
   // account for some rounding of 0.5625 up to 0.563
   assert.ok(((ratio >= 0.562) && (ratio <= 0.563)), 'fluid player without dimensions defaults to 16:9');
+
+  player.dispose();
+});
+
+QUnit.test('should resize fluid player on resize', function(assert) {
+  const player = TestHelpers.makePlayer({fluid: true});
+  let ratio = player.currentHeight() / player.currentWidth();
+
+  // account for some rounding of 0.5625 up to 0.563
+  assert.ok(((ratio >= 0.562) && (ratio <= 0.563)), 'fluid player without dimensions defaults to 16:9');
+
+  player.tech_.videoWidth = () => 100;
+  player.tech_.videoHeight = () => 50;
+
+  player.trigger('resize');
+
+  this.clock.tick(1);
+
+  ratio = player.currentHeight() / player.currentWidth();
+
+  assert.ok(ratio === 0.5, 'player aspect ratio changed on resize event');
+
+  player.dispose();
+});
+
+QUnit.test('should resize fluid player on resize if fluid enabled post initialisation', function(assert) {
+  const player = TestHelpers.makePlayer({fluid: false});
+
+  player.tech_.videoWidth = () => 100;
+  player.tech_.videoHeight = () => 30;
+
+  player.fluid(true);
+  player.trigger('resize');
+
+  this.clock.tick(1);
+
+  const ratio = player.currentHeight() / player.currentWidth();
+
+  assert.ok(ratio === 0.3, 'player aspect ratio changed on resize event');
 
   player.dispose();
 });
@@ -1385,6 +1594,50 @@ QUnit.test('sets lang attribute on player el', function(assert) {
   }
 });
 
+QUnit.test('language changed should trigger languagechange event', function(assert) {
+  const player = TestHelpers.makePlayer({});
+
+  assert.expect(1);
+
+  player.on('languagechange', function() {
+    assert.ok(true, 'languagechange event triggered');
+  });
+  player.language('es-MX');
+  player.dispose();
+});
+
+QUnit.test('language changed should not trigger languagechange event if language is the same', function(assert) {
+  const player = TestHelpers.makePlayer({});
+
+  assert.expect(1);
+  let triggered = false;
+
+  player.language('es-MX');
+  player.on('languagechange', function() {
+    triggered = true;
+  });
+  player.language('es-MX');
+
+  assert.equal(triggered, false, 'languagechange event was not triggered');
+  player.dispose();
+});
+
+QUnit.test('change language multiple times should trigger languagechange event', function(assert) {
+  const player = TestHelpers.makePlayer({});
+
+  assert.expect(3);
+
+  player.on('languagechange', function() {
+    assert.ok(true, 'languagechange event triggered');
+  });
+  player.language('es-MX');
+  player.language('en-EU');
+  // set same language should not trigger the event so we expect 3 asserts not 4.
+  player.language('en-EU');
+  player.language('es-ES');
+  player.dispose();
+});
+
 QUnit.test('should return correct values for canPlayType', function(assert) {
   const player = TestHelpers.makePlayer();
 
@@ -2257,4 +2510,92 @@ QUnit.test('Should accept multiple calls to currentTime after player initializat
   assert.equal(spyInitTime.callCount, 1, 'After multiple calls to currentTime just apply the last one');
   assert.ok(spyCurrentTime.calledAfter(spyInitTime), 'currentTime was called on canplay event listener');
   assert.equal(player.currentTime(), 800, 'The last value passed is stored as the currentTime value');
+});
+
+QUnit.test('Should fire debugon event when debug mode is enabled', function(assert) {
+  const player = TestHelpers.makePlayer({});
+  const debugOnSpy = sinon.spy();
+
+  player.on('debugon', debugOnSpy);
+  player.debug(true);
+
+  assert.ok(debugOnSpy.calledOnce, 'debugon event was fired');
+  player.dispose();
+});
+
+QUnit.test('Should fire debugoff event when debug mode is disabled', function(assert) {
+  const player = TestHelpers.makePlayer({});
+  const debugOffSpy = sinon.spy();
+
+  player.on('debugoff', debugOffSpy);
+  player.debug(false);
+
+  assert.ok(debugOffSpy.calledOnce, 'debugoff event was fired');
+  player.dispose();
+});
+
+QUnit.test('Should enable debug mode and store log level when calling options', function(assert) {
+  const player = TestHelpers.makePlayer({debug: true});
+
+  assert.ok(player.previousLogLevel_, 'debug', 'previous log level is stored when enabling debug');
+  player.dispose();
+});
+
+QUnit.test('Should restore previous log level when disabling debug mode', function(assert) {
+  const player = TestHelpers.makePlayer();
+
+  player.log.level('error');
+  player.debug(true);
+  assert.ok(player.log.level(), 'debug', 'log level is debug when debug is enabled');
+
+  player.debug(false);
+  assert.ok(player.log.level(), 'error', 'previous log level was restored');
+  player.dispose();
+});
+
+QUnit.test('Should return if debug is enabled or disabled', function(assert) {
+  const player = TestHelpers.makePlayer();
+
+  player.debug(true);
+  const enabled = player.debug();
+
+  assert.ok(enabled);
+
+  player.debug(false);
+  const disabled = player.debug();
+
+  assert.notOk(disabled);
+  player.dispose();
+});
+
+const testOrSkip = 'pictureInPictureEnabled' in document ? 'test' : 'skip';
+
+QUnit[testOrSkip]('Should only allow requestPictureInPicture if the tech supports it', function(assert) {
+  const player = TestHelpers.makePlayer({});
+  let count = 0;
+
+  player.tech_.el_ = {
+    disablePictureInPicture: false,
+    requestPictureInPicture() {
+      count++;
+    }
+  };
+
+  player.tech_.requestPictureInPicture = function() {
+    return player.tech_.el_.requestPictureInPicture();
+  };
+  player.tech_.disablePictureInPicture = function() {
+    return this.el_.disablePictureInPicture;
+  };
+
+  player.requestPictureInPicture();
+  assert.equal(count, 1, 'requestPictureInPicture passed through to supporting tech');
+
+  player.tech_.el_.disablePictureInPicture = true;
+  player.requestPictureInPicture();
+  assert.equal(count, 1, 'requestPictureInPicture not passed through when disabled on tech');
+
+  delete player.tech_.el_.disablePictureInPicture;
+  player.requestPictureInPicture();
+  assert.equal(count, 1, 'requestPictureInPicture not passed through when tech does not support');
 });

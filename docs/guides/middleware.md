@@ -1,6 +1,6 @@
 # Middleware
 
-Middleware is a Video.js feature that allows interaction with and modification of how the `Player` and `Tech` talk to each other. For more in-depth information, check out our [feature spotlight](https://blog.videojs.com/feature-spotlight-middleware/).
+Middleware is a Video.js feature that allows interaction with and modification of how the `Player` and `Tech` talk to each other. For more in-depth information, check out our [feature spotlight](https://videojs.com/blog/feature-spotlight-middleware/).
 
 ## Table of Contents
 
@@ -194,7 +194,7 @@ var myMiddleware = function(player) {
 videojs.use('*', myMiddleware);
 ```
 
-This middleware allows the call to `play()` to go through to the `Tech`, and checks in `play` whether the play succeeded or not. A more detailed example can be found in our [sandbox](https://github.com/videojs/video.js/blob/master/sandbox/middleware-play.html.example).
+This middleware allows the call to `play()` to go through to the `Tech`, and checks in `play` whether the play succeeded or not. A more detailed example can be found in our [sandbox](https://github.com/videojs/video.js/blob/main/sandbox/middleware-play.html.example).
 
 ### Terminating Mediator Methods
 

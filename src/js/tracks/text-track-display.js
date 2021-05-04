@@ -99,11 +99,11 @@ class TextTrackDisplay extends Component {
   constructor(player, options, ready) {
     super(player, options, ready);
 
-    const updateDisplayHandler = Fn.bind(this, this.updateDisplay);
+    const updateDisplayHandler = (e) => this.updateDisplay(e);
 
-    player.on('loadstart', Fn.bind(this, this.toggleDisplay));
+    player.on('loadstart', (e) => this.toggleDisplay(e));
     player.on('texttrackchange', updateDisplayHandler);
-    player.on('loadedmetadata', Fn.bind(this, this.preselectTrack));
+    player.on('loadedmetadata', (e) => this.preselectTrack(e));
 
     // This used to be called during player init, but was causing an error
     // if a track should show by default and the display hadn't loaded yet.
@@ -368,7 +368,6 @@ class TextTrackDisplay extends Component {
         cueDiv.style.fontSize = (fontSize * overrides.fontPercent) + 'px';
         cueDiv.style.height = 'auto';
         cueDiv.style.top = 'auto';
-        cueDiv.style.bottom = '2px';
       }
       if (overrides.fontFamily && overrides.fontFamily !== 'default') {
         if (overrides.fontFamily === 'small-caps') {

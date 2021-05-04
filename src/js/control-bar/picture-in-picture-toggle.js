@@ -26,8 +26,8 @@ class PictureInPictureToggle extends Button {
    */
   constructor(player, options) {
     super(player, options);
-    this.on(player, ['enterpictureinpicture', 'leavepictureinpicture'], this.handlePictureInPictureChange);
-    this.on(player, ['disablepictureinpicturechanged', 'loadedmetadata'], this.handlePictureInPictureEnabledChange);
+    this.on(player, ['enterpictureinpicture', 'leavepictureinpicture'], (e) => this.handlePictureInPictureChange(e));
+    this.on(player, ['disablepictureinpicturechanged', 'loadedmetadata'], (e) => this.handlePictureInPictureEnabledChange(e));
 
     // TODO: Deactivate button on player emptied event.
     this.disable();
@@ -48,10 +48,10 @@ class PictureInPictureToggle extends Button {
    * or on value returned by player.disablePictureInPicture() method.
    */
   handlePictureInPictureEnabledChange() {
-    if (!document.pictureInPictureEnabled || this.player_.disablePictureInPicture()) {
-      this.disable();
-    } else {
+    if (document.pictureInPictureEnabled && this.player_.disablePictureInPicture() === false) {
       this.enable();
+    } else {
+      this.disable();
     }
   }
 

@@ -54,6 +54,8 @@ class Html5 extends Tech {
       this.setupSourcesetHandling_();
     }
 
+    this.isScrubbing_ = false;
+
     if (this.el_.hasChildNodes()) {
 
       const nodes = this.el_.childNodes;
@@ -524,8 +526,28 @@ class Html5 extends Tech {
     });
   }
 
+  /**
+   * Set whether we are scrubbing or not.
+   * This is used to decide whether we should use `fastSeek` or not.
+   * `fastSeek` is used to provide trick play on Safari browsers.
+   *
+   * @param {boolean} isScrubbing
+   *                  - true for we are currently scrubbing
+   *                  - false for we are no longer scrubbing
+   */
   setScrubbing(isScrubbing) {
     this.isScrubbing_ = isScrubbing;
+  }
+
+  /**
+   * Get whether we are scrubbing or not.
+   *
+   * @return {boolean} isScrubbing
+   *                  - true for we are currently scrubbing
+   *                  - false for we are no longer scrubbing
+   */
+  scrubbing() {
+    return this.isScrubbing_;
   }
 
   /**
@@ -536,7 +558,7 @@ class Html5 extends Tech {
    */
   setCurrentTime(seconds) {
     try {
-      if (this.isScrubbing_ && this.el_.fastSeek) {
+      if (this.isScrubbing_ && this.el_.fastSeek && browser.IS_ANY_SAFARI) {
         this.el_.fastSeek(seconds);
       } else {
         this.el_.currentTime = seconds;
@@ -626,7 +648,11 @@ class Html5 extends Tech {
         this.el_.webkitPresentationMode !== 'picture-in-picture') {
         this.one('webkitendfullscreen', endFn);
 
-        this.trigger('fullscreenchange', { isFullscreen: true });
+        this.trigger('fullscreenchange', {
+          isFullscreen: true,
+          // set a flag in case another tech triggers fullscreenchange
+          nativeIOSFullscreen: true
+        });
       }
     };
 
@@ -1462,7 +1488,7 @@ Html5.resetMediaElement = function(el) {
 
   /**
    * Set the value of `defaultMuted` on the media element. `defaultMuted` indicates that the current
-   * audio level should be silent, but will only effect the muted level on intial playback..
+   * audio level should be silent, but will only effect the muted level on initial playback..
    *
    * @method Html5.prototype.setDefaultMuted
    * @param {boolean} defaultMuted

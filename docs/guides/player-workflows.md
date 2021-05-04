@@ -14,7 +14,7 @@ This document outlines many considerations for using Video.js for advanced playe
 * [Making the player fullscreen](#making-the-player-fullscreen)
 * [Using Playback information functions](#using-playback-information-functions)
 * [Dealing with the source or the poster on the player](#dealing-with-the-source-or-the-poster-on-the-player)
-* [Accesing the Tech on the player](#accesing-the-tech-on-the-player)
+* [Accessing the Tech on the player](#accessing-the-tech-on-the-player)
 * [Using Video.js with...](#using-videojs-with)
   * [jQuery](#jquery)
   * [React](#react)
@@ -27,7 +27,7 @@ This document outlines many considerations for using Video.js for advanced playe
 After an instance has been created it can be accessed globally in two ways:
 
 1. By calling `videojs('example_video_id');`
-1. By using it directly via  `videojs.players.example_video_id;`
+1. By using it directly via `videojs.players.example_video_id;`
 
 ## Removing Players
 
@@ -77,7 +77,7 @@ Suggests that a player or component was removed from the DOM without using `disp
 
 ## Showing and Hiding a Player
 
-It is not recommended that you attempt to toggle the visibility or display of a Video.js player. Doing so can be particularly problematic when it comes to the Flash tech. Instead, players should be created and [disposed](#removing-players) as needed.
+It is not recommended that you attempt to toggle the visibility or display of a Video.js player. Instead, players should be created and [disposed](#removing-players) as needed.
 
 This is relevant to use cases such as displaying a player in a modal/overlay. Rather than keeping a hidden Video.js player in a DOM element, it's recommended that you create the player when the modal opens and dispose it when the modal closes.
 
@@ -351,24 +351,21 @@ console.log(myPlayer.poster());
 // 'http://example.com/myImage.jpg'
 ```
 
-## Accesing the Tech on the player
+## Accessing the Tech on the player
 
-The tech on the player can only be accesed by pasing `{IWillNotUseThisInPlugins: true}` into the `tech()`
-function on the player.
+The tech on the player can be accessed via `tech()`. Passing any argument will silence the warning that is logged.
 
 ```js
 var myPlayer = videojs('some-player-id');
 
 myPlayer.src({type: 'video/mp4', src: 'http://www.example.com/path/to/video.mp4'});
 myPlayer.ready(function() {
-   // tech() will error with no argument
-   var tech = myPlayer.tech({IWillNotUseThisInPlugins: true});
+   // tech() will log warning without any argument
+   var tech = myPlayer.tech(false);
 });
 ```
 
 ## Using Video.js with...
-
-Coming soon...
 
 ### jQuery
 
